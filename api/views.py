@@ -37,17 +37,15 @@ class LogbookViewSingle(APIView):
         if logbook.user.id != user_id:
             return Response("Not found", status.HTTP_404_NOT_FOUND)
 
-
         new_serialzier = LogbookSerializer(data=request.data) 
-        (breakpoint())
         if not new_serialzier.is_valid():
             return Response("Invalid data", status.HTTP_400_BAD_REQUEST)
         
-        new_serialzier.save()
+        new_serialzier.update(logbook, request.data["entries"])
 
         return Response({
-            "id": logbook[0].id,
-            "time": logbook[0].time
+            "id": logbook.id,
+            "time": logbook.time
         }, status.HTTP_200_OK)
 
 class LogbookView(APIView):
@@ -59,7 +57,6 @@ class LogbookView(APIView):
         if logbooks is None or len(logbooks) == 0:
             return Response("Not found", status.HTTP_404_NOT_FOUND)
         
-
         response = []
         for logbook in logbooks:
             response.append(LogbookSerializer(logbook).data)
@@ -71,7 +68,7 @@ class LogbookView(APIView):
         logbook.save()
 
         # read the request body and create the entries
-        entries = request.data["parameters"]
+        entries = request.data["entries"]
         for entry in entries:
             ParameterAnswer.objects.create(
                 parameter_id=entry["parameter_id"],
