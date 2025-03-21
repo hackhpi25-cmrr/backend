@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Logbook, ParameterAnswer
-from .serializers import UserSerializer, ParameterAnswerSerializer, LogbookSerializer
+from .serializers import UserSerializer, ParameterAnswerSerializer, LogbookSerializer, RegisterSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
