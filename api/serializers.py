@@ -29,9 +29,13 @@ class EnumTypeSerializer(serializers.ModelSerializer):
 
 
 class LogbookSerializer(serializers.ModelSerializer):
+    entries = serializers.SerializerMethodField()
     class Meta:
         model = Logbook
-        fields = ['id', 'user', 'time']
+        fields = ['id', 'time', 'entries']
+    def get_entries(self, obj):
+        entries = ParameterAnswer.objects.filter(logbook_entry=obj)
+        return ParameterAnswerSerializer(entries, many=True).data
 
 
 class ParameterAnswerSerializer(serializers.ModelSerializer):

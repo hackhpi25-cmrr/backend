@@ -9,13 +9,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Logbook, ParameterAnswer
-from .serializers import UserSerializer
+from .serializers import UserSerializer, ParameterAnswerSerializer, LogbookSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-class LogbookView(APIView):
+class LogbookViewSingle(APIView):
     authentication_classes = []
     permission_classes = []
 
@@ -23,18 +23,27 @@ class LogbookView(APIView):
         logbook = Logbook.objects.filter(user_id=user_id, id=log_id)
         if logbook is None or len(logbook) == 0:
             return Response("Not found", status.HTTP_404_NOT_FOUND)
+
+        return Response(
+            LogbookSerializer(logbook[0]).data, status.HTTP_200_OK
+        )
         
-        entries = ParameterAnswer.objects.filter(logbook_entry=logbook[0])
-        return Response({
-            "id": logbook.user.id,
-            "time": logbook.time,
-            "entries": entries
-        }, status.HTTP_200_OK)
 
-
-class LogbookViewCreate(APIView):
+class LogbookView(APIView):
     authentication_classes = []
     permission_classes = []
+
+    def get(self, request, user_id: int, format=None):
+        logbooks = Logbook.objects.filter(user_id=user_id)
+        if logbooks is None or len(logbooks) == 0:
+            return Response("Not found", status.HTTP_404_NOT_FOUND)
+        
+
+        response = []
+        for logbook in logbooks:
+            response.append(LogbookSerializer(logbook).data)
+
+        return Response(response, status.HTTP_200_OK)
 
     def post(self, request, user_id: int, format=None):
         logbook = Logbook.objects.create(user_id=user_id)
