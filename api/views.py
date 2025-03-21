@@ -27,7 +27,28 @@ class LogbookViewSingle(APIView):
         return Response(
             LogbookSerializer(logbook[0]).data, status.HTTP_200_OK
         )
+    
+    def put(self, request, user_id: int, log_id: int, format=None):
+        logbook = Logbook.objects.filter(user_id=user_id, id=log_id)
+        if logbook is None or len(logbook) == 0:
+            return Response("Not found", status.HTTP_404_NOT_FOUND)
         
+        logbook = logbook[0]
+        if logbook.user.id != user_id:
+            return Response("Not found", status.HTTP_404_NOT_FOUND)
+
+
+        new_serialzier = LogbookSerializer(data=request.data) 
+        (breakpoint())
+        if not new_serialzier.is_valid():
+            return Response("Invalid data", status.HTTP_400_BAD_REQUEST)
+        
+        new_serialzier.save()
+
+        return Response({
+            "id": logbook[0].id,
+            "time": logbook[0].time
+        }, status.HTTP_200_OK)
 
 class LogbookView(APIView):
     authentication_classes = []

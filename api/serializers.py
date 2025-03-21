@@ -36,6 +36,28 @@ class LogbookSerializer(serializers.ModelSerializer):
     def get_entries(self, obj):
         entries = ParameterAnswer.objects.filter(logbook_entry=obj)
         return ParameterAnswerSerializer(entries, many=True).data
+    
+    def update(self, instance, validated_data):
+        # update time and entries which is identified by parameter_id
+        entries = validated_data.pop('entries')
+        instance.time = validated_data.get('time', instance.time)
+        instance.save()
+        # update the entries
+        for entry in entries:
+            if not ParameterAnswer.objects.filter(parameter_id=entry["parameter_id"], logbook_entry=instance).exists():
+                # create a new entry
+                ParameterAnswer.objects.create(
+                    parameter_id=entry["parameter"],
+                    answer=entry["answer"],
+                    normalised_answer=entry["normalised_answer"],
+                    logbook_entry=instance
+                ).save()
+            else:
+                # update the entry
+                entry = ParameterAnswer.objects.filter(parameter_id=entry["parameter_id"], logbook_entry=instance)[0]
+                entry.answer = entry["answer"]
+                entry.normalised_answer = entry["normalised_answer"]
+                entry.save()
 
 
 class ParameterAnswerSerializer(serializers.ModelSerializer):
