@@ -2,6 +2,7 @@ Setup:
 1. python -m venv <myenvpath>
 2.
   a) UNIX: source <myenvpath>/bin/activate
+  
   b) Windows: <myenvpath>\Scripts\Activate.bat (oder so ähnlich)
   
 4. pip install -r requirements.txt
