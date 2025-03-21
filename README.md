@@ -13,7 +13,14 @@ Setup:
 
 
 Zum Authentication-Verfahren:
-1. Tokens bekommen:
+1. Nutzer registrieren
+curl \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username": "testuser5", "email": "testmail@abc.com", "first_name": "Max", "last_name": "Mustermann", "password": "user1234"}' \
+  http://localhost:8000/register
+
+2. Login: Tokens anfordern:
 
 curl \
   -X POST \
@@ -21,10 +28,12 @@ curl \
   -d '{"username": "testuser", "password": "user1234"}' \
   http://localhost:8000/api/token/
 
-2. Tokens nutzen (im Header)
+3. Tokens nutzen (im Header)
 
 curl \
   -X GET \
   -H "Content-Type: application/json" \
   -H 'Authorization: Bearer [hier access token einfügen]' \
   http://localhost:8000/amiauth
+
+

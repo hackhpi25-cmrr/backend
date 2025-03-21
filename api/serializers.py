@@ -1,4 +1,4 @@
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import (
     Parameter,
@@ -66,3 +66,21 @@ class BaselineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Baseline
         fields = ['id', 'user', 'question', 'normalised_answer']
+
+        fields = ['url', 'username', 'email', 'is_staff']
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=8)
+    email = serializers.EmailField(required=True)
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "first_name", "last_name", "password"]
+
+    def create(self, validated_data):
+        user = User(**validated_data)
+        user.set_password(validated_data["password"])
+        user.save()
+        return user

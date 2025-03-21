@@ -72,3 +72,15 @@ class AuthTestView(APIView):
 
     def get(self, user_id: int, log_id: int, request, format=None):
         return Response("You are authenticated!", status.HTTP_200_OK)
+    def get(self, request, format=None):
+        return Response("hello", status.HTTP_200_OK)
+    
+class RegisterView(APIView):
+    def post(self, request):
+        print(request.data)
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Created user successfully"}, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
