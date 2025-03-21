@@ -15,7 +15,7 @@ Setup:
 Zum Authentication-Verfahren:
 1. Tokens bekommen:
 
-curl \                                
+curl \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{"username": "testuser", "password": "user1234"}' \

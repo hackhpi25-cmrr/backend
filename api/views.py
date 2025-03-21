@@ -19,7 +19,7 @@ class LogView(APIView):
     permission_classes = []
 
     def get(self, user_id: int, log_id: int, request, format=None):
-        return Response("hello", status.HTTP_200_OK)
+        return Response("You are authenticated!", status.HTTP_200_OK)
     
 class AuthTestView(APIView):
     authentication_classes = [JWTAuthentication]
