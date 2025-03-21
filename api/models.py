@@ -6,7 +6,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Parameter(models.Model):
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_parameters", null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_parameters", null=True, blank=True)
     name = models.CharField(max_length=128)
 
     class Type(models.TextChoices):
