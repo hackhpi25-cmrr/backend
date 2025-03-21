@@ -31,7 +31,8 @@ router.register(r'users', apiViews.UserViewSet)
 urlpatterns = [ 
     #path('', include(router.urls)),
     path('amiauth', apiViews.AuthTestView.as_view()),
-    path('users/<int:user_id>/logs/<int:log_id>', apiViews.LogView.as_view()),
+    path('users/<int:user_id>/logs/<int:log_id>', apiViews.LogbookView.as_view()),
+    path('users/<int:user_id>/logs', apiViews.LogbookViewCreate.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
