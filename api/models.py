@@ -7,7 +7,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 class Parameter(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_parameters", null=True)
-    title = models.CharField(max_length=128)
+    name = models.CharField(max_length=128)
 
     class Type(models.TextChoices):
         ENUM = "Enum"
@@ -41,7 +41,7 @@ class ParameterAnswer(models.Model):
 
 class Treatment(models.Model):
     
-    title = models.CharField(max_length=128)
+    name = models.CharField(max_length=128)
 
 class Suggestion(models.Model):
 
@@ -63,7 +63,7 @@ class Suggestion(models.Model):
 
 class BaselineQuestion(models.Model):
 
-    title = models.CharField(max_length=128)
+    name = models.CharField(max_length=128)
 
 class Baseline(models.Model):
 
