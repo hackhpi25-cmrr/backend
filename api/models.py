@@ -45,7 +45,7 @@ class Treatment(models.Model):
 
 class Suggestion(models.Model):
 
-    lookentry = models.ForeignKey(Logbook, on_delete=models.CASCADE, related_name="suggestion")
+    logbook_entry  = models.OneToOneField(Logbook, on_delete=models.CASCADE, related_name="suggestion")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="suggestions")
     treatment = models.ForeignKey(Treatment, on_delete=models.CASCADE)
     perceived_effectiveness = models.FloatField( # perceived by user
@@ -67,9 +67,9 @@ class BaselineQuestion(models.Model):
 
 class Baseline(models.Model):
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_parameters")
-    question = models.ForeignKey(BaselineQuestion, on_delete=models.CASCADE, related_name="user_parameters")
-    normalised_answer = models.FloatField( # perceived by user
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="baselines")
+    question = models.ForeignKey(BaselineQuestion, on_delete=models.CASCADE)
+    normalised_answer = models.FloatField(
         validators=[
             MinValueValidator(0.0),
             MaxValueValidator(1.0)
