@@ -27,7 +27,7 @@ class Logbook(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="logbook_entries")
     time = models.DateTimeField(auto_now_add=True)
 
-class Answer(models.Model):
+class ParameterAnswer(models.Model):
 
     parameter = models.ForeignKey(Parameter, on_delete=models.CASCADE)
     answer = models.IntegerField()
@@ -61,3 +61,17 @@ class Suggestion(models.Model):
         ]
     )
 
+class BaselineQuestion(models.Model):
+
+    title = models.CharField(max_length=128)
+
+class Baseline(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_parameters")
+    question = models.ForeignKey(BaselineQuestion, on_delete=models.CASCADE, related_name="user_parameters")
+    normalised_answer = models.FloatField( # perceived by user
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(1.0)
+        ]
+    )
