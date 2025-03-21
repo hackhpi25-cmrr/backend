@@ -1,0 +1,407 @@
+openapi: 3.0.0
+info:
+  title: Trinitus
+  description: API for managing user logs and parameters.
+  version: 1.0.0
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Enter 'Bearer' followed by your token. 
+        For example: "Bearer your-token-here"
+
+security:
+  - BearerAuth: [] 
+
+paths:
+  /users/{user_id}/sessions:
+    post:
+      summary: Create a logged in session for the user
+      tags: ["user auth"]
+      security: [{}]
+      description: Create a logged in session for the user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The unique ID of the user.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  description: password.
+                  example: "newpassword123"
+      responses:
+        '200':
+          description: Successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "token-x-xxxxx"
+        '400':
+          description: Invalid request, such as missing password or invalid user_id
+        '404':
+          description: User not found
+          
+  /users/{user_id}/sessions/{session}:
+    delete:
+      summary: Invalidate a user session
+      description: Invalidate a user session `session`.
+      security: [{}]
+      tags: ["user auth"]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The unique ID of the user to delete.
+          schema:
+            type: string
+        - name: session
+          in: path
+          required: true
+          schema:
+            type: string
+          
+      responses:
+        '201':
+          description: logged out successfully
+        '404':
+          description: User not found
+        '400':
+          description: Invalid user_id format
+
+  /users/{user}/logs/{log}:
+    get:
+      summary: Get a specific log entry for a user
+      operationId: getUserLogById
+      parameters:
+        - name: user
+          in: path
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+        - name: log
+          in: path
+          required: true
+          description: The log entry ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A specific log entry
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  user_id:
+                    type: integer
+                  parameters:
+                    type: object
+                    additionalProperties:
+                      type: number
+
+  /users/{user}/logs:
+    get:
+      summary: Get all log entries for a specific user
+      operationId: getUserLogs
+      parameters:
+        - name: user
+          in: path
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: Limit the number of log entries returned
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A list of log entries for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    user_id:
+                      type: integer
+                    parameters:
+                      type: object
+                      additionalProperties:
+                        type: number
+    post:
+      summary: Create a new log entry for a user
+      operationId: createUserLog
+      parameters:
+        - name: user
+          in: path
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                parameters:
+                  type: object
+                  additionalProperties:
+                    type: number
+      responses:
+        '201':
+          description: Log entry created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  user_id:
+                    type: integer
+                  parameters:
+                    type: object
+                    additionalProperties:
+                      type: number
+    put:
+      summary: Update an existing log entry for a user
+      operationId: updateUserLog
+      parameters:
+        - name: user
+          in: path
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                user_id:
+                  type: integer
+                parameters:
+                  type: object
+                  additionalProperties:
+                    type: number
+      responses:
+        '200':
+          description: Log entry updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  user_id:
+                    type: integer
+                  parameters:
+                    type: object
+                    additionalProperties:
+                      type: number
+
+
+  /users/{user}/logs/parameters:
+    post:
+        summary: Create a new log parameter for a user
+        operationId: createUserLogParameter
+        parameters:
+          - name: user
+            in: path
+            required: true
+            description: The user ID
+            schema:
+              type: integer
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  type:
+                    type: string
+        responses:
+          '201':
+            description: Log parameter created successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    user_id:
+                      type: integer
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    type:
+                      type: string
+    put:
+      summary: Update a log parameter for a user
+      operationId: updateUserLogParameter
+      parameters:
+        - name: user
+          in: path
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                user_id:
+                  type: integer
+                title:
+                  type: string
+                description:
+                  type: string
+                type:
+                  type: string
+      responses:
+        '200':
+          description: Log parameter updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  user_id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  type:
+                    type: string
+    get:
+      summary: Get all log parameters for a user
+      operationId: getUserLogParameters
+      parameters:
+        - name: user
+          in: path
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of log parameters for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    user_id:
+                      type: integer
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    type:
+                      type: string
+
+  /users/{user}/baseline:
+    put:
+      summary: Update baseline responses for a user
+      operationId: updateUserBaseline
+      parameters:
+        - name: user
+          in: path
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                responses:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      question_id:
+                        type: integer
+                      answer:
+                        type: number
+      responses:
+        '200':
+          description: User baseline updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                  responses:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        question_id:
+                          type: integer
+                        answer:
+                          type: number
