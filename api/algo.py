@@ -29,7 +29,10 @@ def treatmentoptions(points, weights, now):
                 cnt += 1
                 continue
             res[1] *= (abs(point[i]-now[i-2])* weights[i])
-        res[1] /= (len(point)-1-cnt) if (len(point)-1-cnt) > 0 else 1
+        if (len(point)-1-cnt) > 0:
+            res[1] /= (len(point)-1-cnt)
+        else:
+            res[1] = 1  # Default score if all points were skipped
         res.append(res[1])
         effectiveness = point[1] if point[1] is not None else 0.5  # Default effectiveness of 0.5 if None
         res[2] *= (normAdd - effectiveness) * normMull
@@ -96,21 +99,23 @@ def anticipatePainlevel(points, weights, now):
 
     return anticiapted Painlevel
     """
-    dist = -1
+    dist = float('inf')
     pain = 0
     for point in points:
         if point == None or len(point)==0:
             continue
-        res = 0
-        
+        res = 1  # Initialize to 1 instead of 0 for multiplication
         cnt = 0
         for i in range(1, len(point)):
             if(point[i]==None or now[i-1]==None):
                 cnt += 1
                 continue
             res *= (abs(point[i]-now[i-1])* weights[i])
-        res /= (len(point)-1-cnt)
-        if(res < dist or dist == -1):
+        if (len(point)-1-cnt) > 0:
+            res /= (len(point)-1-cnt)
+        else:
+            res = float('inf')  # If all points were skipped, consider this point as far away as possible
+        if(res < dist):
             dist = res
             pain = point[0]
 
@@ -130,17 +135,21 @@ def bestUserProfile(userProfiles, weights, now):
 
     return best userID
     """
-    score = []
+    scores = []  # Renamed to avoid confusion
     for user in userProfiles:
-        score.append([user[0], 1])
+        score = [user[0], 1]  # Create new score list for each user
         cnt = 0
         for i in range(1, len(user)):
             if(user[i]==None or now[i-1]==None):
                 cnt += 1
                 continue
             score[1] *= (abs(user[i]-now[i-1])* weights[i])
-        score[1] /= (len(user)-cnt)
-    sortedScore = sorted(score, key=lambda x: (x[1], x[0]))
+        if (len(user)-cnt) > 0:
+            score[1] /= (len(user)-cnt)
+        else:
+            score[1] = float('inf')  # If all points were skipped, consider this user as far away as possible
+        scores.append(score)
+    sortedScore = sorted(scores, key=lambda x: (x[1], x[0]))
     return sortedScore[0][0]
 
 from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter
@@ -265,6 +274,8 @@ def rankFromDBwithRef(nowID, userProfilesIDs, limit):
 def choose_element(liste1, liste2):
     # Gesamtelementanzahl berechnen
     gesamtanzahl = len(liste1) + len(liste2)
+    if gesamtanzahl == 0:
+        return None  # Handle empty lists case
 
     # Wahrscheinlichkeit für die Auswahl der ersten Liste berechnen
     p_liste1 = len(liste1) / gesamtanzahl
@@ -272,11 +283,14 @@ def choose_element(liste1, liste2):
     # Entscheiden, welche Liste ausgewählt wird
     if random.random() < p_liste1:
         # Elemente der ersten Liste mit Gewichten basierend auf ihrer Position wählen
+        if not liste1:  # Handle empty liste1
+            return random.choice(liste2) if liste2 else None
         gewichte = [len(liste1) - i for i in range(len(liste1))]
         element = random.choices(liste1, weights=gewichte, k=1)[0]
         print("Aus Liste 1:", element)
     else:
-        # Gleichmäßig aus der zweiten Liste wählen
+        if not liste2:  # Handle empty liste2
+            return random.choice(liste1) if liste1 else None
         element = random.choice(liste2)
         print("Aus Liste 2:", element)
 
@@ -463,7 +477,7 @@ def statisticsCustom (userID, parameterID, norm):
     ranking = []
     for suggestion in suggestions:
         try:
-            paraAns = ParameterAnswer.objects.get(logbook_entry_id=suggestion.logbook_entry.id, parameterID = parameterID)
+            paraAns = ParameterAnswer.objects.get(logbook_entry_id=suggestion.logbook_entry.id, parameter_id=parameterID)
             if (norm == 1):
                 ranking.append([suggestion.treatment.id, suggestion.effectiveness*paraAns.normalised_answer])
             else:
