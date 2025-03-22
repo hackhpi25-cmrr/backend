@@ -23,17 +23,68 @@ class UserProfileView(APIView):
     permission_classes = []
 
     def get(self, request, user_id: int, format=None):
-        userProfile = UserProfile.objects.filter(user_id=user_id)
-        return Response(UserProfileSerializer(userProfile).data, status.HTTP_200_OK)
+        try:
+            userProfile = UserProfile.objects.get(user_id=user_id)
+            return Response(UserProfileSerializer(userProfile).data, status.HTTP_200_OK)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    def put(self, request, user_id: int, format=None):
+        # read the request body and create the entries
+        reference = request.data["reference"]
+        try:
+            userProfile = UserProfile.objects.get(user_id=user_id)
+            userProfile.reference_user_id = reference
+            userProfile.save()
+            return Response(status=status.HTTP_200_OK)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
     
     def post(self, request, user_id: int, format=None):
         # read the request body and create the entries
         reference = request.data["reference"]
-        userProfile = UserProfile.objects.filter(user_id=user_id)
-        userProfile.update(reference=reference)
+        refernceUser = User.objects.filter(id=reference).first()
+        if not refernceUser:
+            return Response({"error": "Reference user not found"}, status=status.HTTP_404_NOT_FOUND) 
+        
+        if UserProfile.objects.filter(user_id=user_id):
+            userProfile = UserProfile.objects.get(user_id=user_id)
+            userProfile.reference_user_id = reference
+            userProfile.save()
+            return Response(status=status.HTTP_200_OK)
+        
+        userProfile = UserProfile.objects.create(user_id=user_id, reference_user=refernceUser)
         userProfile.save()
 
         return Response(status=status.HTTP_201_CREATED)
+
+# class UserProfileView(APIView):
+#     authentication_classes = []
+#     permission_classes = []
+
+#     def get(self, request, user_id: int, format=None):
+#         userProfile = UserProfile.objects.filter(user_id=user_id)
+#         return Response(UserProfileSerializer(userProfile).data, status.HTTP_200_OK)
+    
+#     def put(self, request, user_id: int, format=None):
+#         # read the request body and create the entries
+#         reference = request.data["reference"]
+#         userProfile = UserProfile.objects.filter(user_id=user_id)
+#         userProfile.update(reference_user=reference)
+#         userProfile.save()
+
+#         return Response(status=status.HTTP_201_CREATED)
+    
+#     def post(self, request, user_id: int, format=None):
+#         # read the request body and create the entries
+#         reference = request.data["reference"]
+#         refernceUser = User.objects.filter(id=reference)
+#         if not refernceUser.exists():
+#             return Response(status=status.HTTP_404_NOT_FOUND) 
+#         userProfile = UserProfile.objects.create(user_id=user_id, reference_user=refernceUser.get())
+#         userProfile.save()
+
+#         return Response(status=status.HTTP_201_CREATED)
 
 class LogbookViewSingle(APIView):
     authentication_classes = []
