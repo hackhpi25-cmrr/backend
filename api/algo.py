@@ -435,10 +435,10 @@ def retLogs(userID):
         tmp = []
         tmp.append(["Time", log.time])
         tmp.append(["Treatment", Suggestion.objects.get(logbook_entry=log).treatment.name])
-        tmp.append(["Perceived ffectiveness", Suggestion.objects.get(logbook_entry=log).perceived_effectiveness])
+        tmp.append(["Perceived effectiveness", Suggestion.objects.get(logbook_entry=log).perceived_effectiveness])
         for answer in ParameterAnswer.objects.all().filter(logbook_entry=log):
             tmp.append([answer.parameter.name, answer.answer])
         res.append(tmp)
-    res = sorted(res, key=lambda x: x[0][1])
+    res = sorted(res, key=lambda x: (x[0][1], x[1][1]))
 
     return res
