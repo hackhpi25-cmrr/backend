@@ -413,7 +413,7 @@ def passiveTreatment(nowID):
 
     elem = choose_element(rankingID, missing)
 
-    return Treatment.objects.get(id=elem)
+    return Treatment.objects.get(id=elem).name
 
     
 
