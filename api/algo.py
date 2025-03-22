@@ -28,7 +28,7 @@ def treatmentoptions(points, weights, now):
             if(point[i]==None or now[i-2]==None):
                 cnt += 1
                 continue
-            res[1] *= (abs(point[i]-now[i-2])* weights[i])
+            res[1] *= (abs(point[i]-now[i-2])* weights[i-2])
         if (len(point)-1-cnt) > 0:
             res[1] /= (len(point)-1-cnt)
         else:
@@ -116,7 +116,7 @@ def anticipatePainlevel(points, weights, now):
             if point[i] is None or now[i-1] is None:
                 cnt += 1
                 continue
-            res *= (abs(point[i]-now[i-1])* weights[i])
+            res *= (abs(point[i]-now[i-1])* weights[i-1])
         if (len(point)-1-cnt) > 0:
             res /= (len(point)-1-cnt)
         else:
@@ -149,7 +149,7 @@ def bestUserProfile(userProfiles, weights, now):
             if(user[i]==None or now[i-1]==None):
                 cnt += 1
                 continue
-            score[1] *= (abs(user[i]-now[i-1])* weights[i])
+            score[1] *= (abs(user[i]-now[i-1])* weights[i-1])
         if (len(user)-cnt) > 0:
             score[1] /= (len(user)-cnt)
         else:
