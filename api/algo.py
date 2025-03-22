@@ -300,8 +300,7 @@ def choose_element(liste1, liste2):
 
 def passiveTreatment(nowID):
     userID = Logbook.objects.get(id=nowID).user.id
-    limit = 0
-    
+    limit = 0    
 
     parameters = Parameter.objects.all()
     
@@ -348,10 +347,8 @@ def passiveTreatment(nowID):
 
     pain = anticipatePainlevel(points, weights, now)
 
-
     if (pain < limit):
-        return None
-    
+        return None    
 
     parameters = Parameter.objects.all()
     
@@ -403,7 +400,7 @@ def passiveTreatment(nowID):
 
     rankingID = []
     for rank in ranked:
-        rankingID.append(rank[0].treatment.id)
+        rankingID.append(rank[0])  # rank[0] is already the treatment ID
     
     treatments = Treatment.objects.all().filter(passive=True)
     missing = []
@@ -413,7 +410,10 @@ def passiveTreatment(nowID):
 
     elem = choose_element(rankingID, missing)
 
-    return Treatment.objects.get(id=elem).name
+    if elem is None:
+        return None
+        
+    return elem  # Return the treatment ID directly
 
     
 
