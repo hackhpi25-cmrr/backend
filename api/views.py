@@ -506,9 +506,9 @@ class MetricParameterView(APIView):
     authentication_classes = []
     permission_classes = []
 
-    def get(self, request, user_id: int, parameter_id: int, format=None):
+    def get(self, request, user_id: int, parameter_id: int, norm: int, format=None):
 
-        bestTreatments = algo.statisticsCustom(user_id, parameter_id)
+        bestTreatments = algo.statisticsCustom(user_id, parameter_id, norm)
         if len(bestTreatments) > 0:
             response = json.dumps(bestTreatments)
             return Response(response, status.HTTP_200_OK)
