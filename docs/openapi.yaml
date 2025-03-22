@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Trinitus
+  title: Tinnitus Treatment API
   description: API for managing user logs and parameters.
   version: 1.0.0
 
@@ -151,7 +151,7 @@ paths:
                       type: integer
                     user_id:
                       type: integer
-                    parameters:
+                    entries:
                       type: object
                       additionalProperties:
                         type: number
@@ -257,7 +257,7 @@ paths:
                 properties:
                   user_id:
                     type: integer
-                  title:
+                  name:
                     type: string
                   description:
                     type: string
@@ -275,7 +275,7 @@ paths:
                       type: integer
                     user_id:
                       type: integer
-                    title:
+                    name:
                       type: string
                     description:
                       type: string
@@ -305,7 +305,7 @@ paths:
                       type: integer
                     user_id:
                       type: integer
-                    title:
+                    name:
                       type: string
                     description:
                       type: string
@@ -340,7 +340,7 @@ paths:
                     type: integer
                   user_id:
                     type: integer
-                  title:
+                  name:
                     type: string
                   description:
                     type: string
@@ -358,7 +358,7 @@ paths:
                       type: integer
                     user_id:
                       type: integer
-                    title:
+                    name:
                       type: string
                     description:
                       type: string
@@ -404,7 +404,7 @@ paths:
                       type: integer
                     user_id:
                       type: integer
-                    title:
+                    name:
                       type: string
                     description:
                       type: string

@@ -144,7 +144,7 @@ class ParameterEditView(APIView):
         param.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
         
-import algo
+from . import algo
 
 class SuggestionView(APIView):
     authentication_classes = []
@@ -156,15 +156,15 @@ class SuggestionView(APIView):
         # no suggestion, generate one with algo
         if suggestions is None or len(suggestions) == 0:
             # get all parameters
-            parameters = Parameter.objects.filter(Q(user_id=user_id) | Q(user_id=None))
-            parameters.append(Parameter.objects.filter(user_id=user_id))
+            parameters = list(Parameter.objects.filter(Q(user_id=user_id) | Q(user_id=None)))
+            parameters.append(list(Parameter.objects.filter(user_id=user_id)))
             # get history suggestions for user
             suggestions = Suggestion.objects.filter(user_id=user_id)
             # get grouped parameter answers
             grouped_parameter_answers = []
 
             for suggestion in suggestions:
-                vec = [None * (len(parameters) + 2)]
+                vec = [None for _ in range(len(parameters) + 2)]
                 vec[0] = suggestion.treatment.id
                 vec[1] = suggestion.effectiveness
                 for answer in suggestion.logbook_entry.answers:
@@ -176,15 +176,26 @@ class SuggestionView(APIView):
             if current_logbook is None or len(current_logbook) == 0:
                 return Response("Not found", status.HTTP_404_NOT_FOUND)
             current_logbook = current_logbook[0]
-            current_logbook_answers = [None * len(parameters)]
-            for answer in current_logbook.answers:
+            current_logbook_answers = [None for _ in range(len(parameters))]
+            for answer in current_logbook.answers.all():
                 current_logbook_answers[answer.parameter_id] = answer.normalised_answer
             
             # get the suggestions
             score = algo.treatmentoptions(grouped_parameter_answers, [1 for _ in range(len(current_logbook_answers))],current_logbook_answers)
             suggestions = algo.rankTreatmentByUse(score)
+
+            if len(suggestions) == 0:
+                return Response(Suggestion.objects.create(
+                        logbook_entry_id=log_id,
+                        user_id=user_id,
+                        treatment_id=random.choice(Treatment.objects.all()).id,
+                    ).save(), 
+                    status.HTTP_200_OK
+                )
+
             # Pick suggestion by randomization with weights
             sum_score = sum([suggestion[1] for suggestion in suggestions])
+            # normalize weights
             for suggestion in suggestions:
                 suggestion[1] /= sum_score
             chosen_suggestion = random.choices(suggestions, [s[1] for s in range(len(suggestions))])
