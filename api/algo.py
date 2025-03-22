@@ -216,6 +216,7 @@ def getBaseUserProfileFromDB(userID, userProfilesIDs):
     userProfiles = []
     for userProfilesID in userProfilesIDs:
         user = []
+        user.append(userProfilesID)
         for baselineID in baselineIDs:
             try:
                 baseline = Baseline.objects.get(user_id=userProfilesID, baseline_question_id=baselineID)
