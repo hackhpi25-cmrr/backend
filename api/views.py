@@ -125,11 +125,14 @@ class LogbookView(APIView):
     permission_classes = []
 
     def get(self, request, user_id: int, format=None):
-        logbooks = Logbook.objects.filter(user_id=user_id)
+
+        response = json.dumps(algo.retLogs(user_id))
+
+        # logbooks = Logbook.objects.filter(user_id=user_id)
         
-        response = []
-        for logbook in logbooks:
-            response.append(LogbookSerializer(logbook).data)
+        # response = []
+        # for logbook in logbooks:
+        #     response.append(LogbookSerializer(logbook).data)
 
         return Response(response, status.HTTP_200_OK)
 

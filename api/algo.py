@@ -435,13 +435,14 @@ def retLogs(userID):
     logs = Logbook.objects.all().filter(user_id=userID, is_auto_generated=False)
     res = []
     for log in logs:
-        tmp = []
-        tmp.append(["Time", log.time])
-        tmp.append(["Treatment", Suggestion.objects.get(logbook_entry=log).treatment.name])
-        tmp.append(["Perceived effectiveness", Suggestion.objects.get(logbook_entry=log).perceived_effectiveness])
-        for answer in ParameterAnswer.objects.all().filter(logbook_entry=log):
-            tmp.append([answer.parameter.name, answer.answer])
-        res.append(tmp)
+        if Suggestion.objects.filter(logbook_entry=log).exists():
+            tmp = []
+            tmp.append(["Time", log.time])
+            tmp.append(["Treatment", Suggestion.objects.get(logbook_entry=log).treatment.name])
+            tmp.append(["Perceived effectiveness", Suggestion.objects.get(logbook_entry=log).perceived_effectiveness])
+            for answer in ParameterAnswer.objects.filter(logbook_entry=log):
+                tmp.append([answer.parameter.name, answer.answer])
+            res.append(tmp)
     res = sorted(res, key=lambda x: (x[0][1], x[1][1]))
 
     return res
