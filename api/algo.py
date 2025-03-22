@@ -300,7 +300,7 @@ def choose_element(liste1, liste2):
 
 def passiveTreatment(nowID):
     userID = Logbook.objects.get(id=nowID).user.id
-    limit = 5
+    limit = 0
     
 
     parameters = Parameter.objects.all()
