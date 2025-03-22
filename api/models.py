@@ -14,7 +14,7 @@ class Parameter(models.Model):
         BOOLEAN = "Boolean"
         NUMBER = "Number"
 
-    type = models.CharField(max_length=32, choices=Type.choices)
+    parameter_type = models.CharField(max_length=32, choices=Type.choices)
 
 class EnumType(models.Model):
 
@@ -75,3 +75,19 @@ class Baseline(models.Model):
             MaxValueValidator(1.0)
         ]
     )
+
+class BlogEntry(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blog_entries")
+    title = models.CharField(max_length=128)
+    content = models.CharField(max_length=1024)
+
+class BlogComment(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    content = models.CharField(max_length=1024)
+
+class BlogLike(models.Model):
+
+    blog = models.ForeignKey(BlogEntry, on_delete=models.CASCADE, related_name="likes")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")
