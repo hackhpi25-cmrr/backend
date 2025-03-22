@@ -85,6 +85,7 @@ class BlogEntry(models.Model):
 class BlogComment(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    blog = models.ForeignKey(BlogEntry, on_delete=models.CASCADE, related_name="comments")
     content = models.CharField(max_length=1024)
 
 class BlogLike(models.Model):
