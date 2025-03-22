@@ -20,10 +20,11 @@ def treatmentoptions(points, weights, now):
             if(point[i]==None or now[i-2]==None):
                 cnt += 1
                 continue
-            res *= (abs(point[i]-now[i-2])* weights[i])
-        res /= (len(point)-2-cnt)
-        score.append(res)
-        res *= (normAdd - points[1])*normMull
+            res[1] *= (abs(point[i]-now[i-2])* weights[i])
+        res[1] /= (len(point)-2-cnt)
+        res.append(res[1])
+        res[2] *= (normAdd - points[1])*normMull
+        res.append(point[1])
         score.append(res)
 
     return score
@@ -38,7 +39,7 @@ def rankTreatmentByUse(score):
     return ranked treatment
     """
     #print(score)
-    sortedScore = sorted(score, key=lambda x: (x[1], x[2], x[0]))
+    sortedScore = sorted(score, key=lambda x: (x[1], x[2], x[3], x[0]))
     #print(sortedScore)
     res = []
     exists = []
@@ -59,7 +60,7 @@ def rankTreatmentByDist(score):
     return ranked treatment
     """
     #print(score)
-    sortedScore = sorted(score, key=lambda x: (x[2], x[1], x[0]))
+    sortedScore = sorted(score, key=lambda x: (x[2], x[1], x[3], x[0]))
     #print(sortedScore)
     res = []
     exists = []
