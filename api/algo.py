@@ -1,3 +1,5 @@
+import random
+
 def treatmentoptions(points, weights, now):
     """
     array of array of floats/ints
@@ -246,5 +248,98 @@ def rankFromDBwithRef(nowID, userProfilesIDs, limit):
     bestProfile = getBaseUserProfileFromDB(userID, userProfilesIDs)
     return rankFromDBusr(nowID, bestProfile)
 
+
+def choose_element(liste1, liste2):
+    # Gesamtelementanzahl berechnen
+    gesamtanzahl = len(liste1) + len(liste2)
+
+    # Wahrscheinlichkeit für die Auswahl der ersten Liste berechnen
+    p_liste1 = len(liste1) / gesamtanzahl
+
+    # Entscheiden, welche Liste ausgewählt wird
+    if random.random() < p_liste1:
+        # Elemente der ersten Liste mit Gewichten basierend auf ihrer Position wählen
+        gewichte = [len(liste1) - i for i in range(len(liste1))]
+        element = random.choices(liste1, weights=gewichte, k=1)[0]
+        print("Aus Liste 1:", element)
+    else:
+        # Gleichmäßig aus der zweiten Liste wählen
+        element = random.choice(liste2)
+        print("Aus Liste 2:", element)
+
+    return element
+
+
+
+def passiveTreatment(nowID):
+    userID = Logbook.objects.get(id=nowID).user.id
+    limit = 5
+    pain = anticipatePainlevel(nowID)
+
+    if (pain < limit):
+        return None
+    
+
+    parameters = Parameter.objects.all()
+    
+    # Gewichtungen und Sortierung filtern
+    parameterIDs = []
+    weights = []
+    for parameter in parameters:
+        weights.append(parameter.weight)
+        parameterIDs.append(parameter.id)
+    
+    # Logbucheintrag von now holen
+    nowlogbook = Logbook.objects.get(id=nowID)
+    userID = nowlogbook.user.id
+    now = []
+
+    # Parameterantworten von now holen
+    for parameterID in parameterIDs:
+        try:
+            answer = ParameterAnswer.objects.get(parameter_id=parameterID, logbook_entry_id=nowID)
+            now.append(answer.normalised_answer)
+        except ParameterAnswer.DoesNotExist:
+            now.append(None)
+
+    points = []
+    Logbooks = Logbook.objects.all()
+    suggestions = Suggestion.objects.all()
+    for logbook in Logbooks:
+        if logbook.id == nowID or logbook.user.id != userID:
+            continue
+        # Suggestions durchsuchen
+        tmp = []
+        for suggestion in suggestions:
+            if suggestion.logbook_entry.id == logbook.id and suggestion.treatment.passive == True:
+                tmp.append(suggestion.treatment.id)
+                tmp.append(suggestion.effectiveness)
+                for parameterID in parameterIDs:
+                    try:
+                        answer = ParameterAnswer.objects.get(parameter_id=parameterID, logbook_entry_id=logbook.id)
+                        tmp.append(answer.normalised_answer)
+                    except ParameterAnswer.DoesNotExist:
+                        tmp.append(None)
+    points.append(tmp)
+
+    # Scores berechnen
+    score = treatmentoptions(points, weights, now)
+
+    # Ranking
+    ranked = rankTreatmentByUse(score)
+
+    rankingID = []
+    for rank in ranked:
+        rankingID.append(rank[0])
+    
+    treatments = Treatment.objects.all().filter(passive=True)
+    missing = []
+    for treatment in treatments:
+        if treatment.id not in rankingID:
+            missing.append(treatment.id)
+
+    return choose_element(rankingID, missing)
+
+    
 
 
