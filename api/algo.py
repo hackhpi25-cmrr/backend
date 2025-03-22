@@ -135,3 +135,25 @@ def bestUserProfile(userProfiles, weights, now):
         score[1] /= (len(user)-1-cnt)
     sortedScore = sorted(score, key=lambda x: (x[1], x[0]))
     return sortedScore[0][0]
+
+from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter, BaselineQuestion
+
+def rankFromDB(nowID):
+
+    parameters = Parameter.objects.all()
+    
+    # Gewichtungen und Sortierung filtern
+    parameterIDs = []
+    weights = []
+    for parameter in parameters:
+        weights.append(parameter.weight)
+        parameterIDs.append(parameter.id)
+    
+    # Logbucheintrag von now holen
+    nowlogbook = Logbook.objects.get(id=nowID)
+    userID
+
+
+
+    
+
