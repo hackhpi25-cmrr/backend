@@ -198,6 +198,34 @@ class SuggestionView(APIView):
 
         return Response(suggestions[0], status.HTTP_200_OK)
 
+class SuggestionEditView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def put(self, request, user_id: int, log_id: int, suggestion_id: int, format=None):
+        suggestion = Suggestion.objects.filter(user_id=user_id, logbook_entry_id=log_id, id=suggestion_id)
+        if suggestion is None or len(suggestion) == 0:
+            return Response("Not found", status.HTTP_404_NOT_FOUND)
+        
+        suggestion = suggestion[0]
+        if suggestion.user.id != user_id:
+            return Response("Not found", status.HTTP_404_NOT_FOUND)
+
+        new_serialzier = SuggestionSerializer(data=request.data) 
+        if not new_serialzier.is_valid():
+            return Response("Invalid data", status.HTTP_400_BAD_REQUEST)
+        
+        new_serialzier.update(suggestion, request.data)
+
+        return Response({
+            "id": suggestion.id,
+            "logbook_entry": suggestion.logbook_entry.id,
+            "user": suggestion.user.id,
+            "treatment": suggestion.treatment.id,
+            "perceived_effectiveness": suggestion.perceived_effectiveness,
+            "effectiveness": suggestion.effectiveness
+        }, status.HTTP_200_OK)
+
 class AuthTestView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
