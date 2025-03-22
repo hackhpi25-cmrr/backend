@@ -8,7 +8,10 @@ from .models import (
     Treatment,
     Suggestion,
     BaselineQuestion,
-    Baseline
+    Baseline,
+    BlogEntry,
+    BlogComment,
+    BlogLike
 )
 
 class UserSerializer(serializers.ModelSerializer):
@@ -83,6 +86,24 @@ class BaselineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Baseline
         fields = ['id', 'user', 'question', 'normalised_answer']
+
+class BlogEntrySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = BlogEntry 
+        fields = '__all__'
+
+class BlogCommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = BlogComment 
+        fields = '__all__'
+
+class BlogLikeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = BlogLike 
+        fields = '__all__'
 
 
 class RegisterSerializer(serializers.ModelSerializer):

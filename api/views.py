@@ -9,8 +9,8 @@ from rest_framework import permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter
-from .serializers import UserSerializer, ParameterAnswerSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer
+from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter, BlogEntry, BlogComment, BlogLike
+from .serializers import BlogEntrySerializer, BlogCommentSerializer, BlogLikeSerializer, UserSerializer, ParameterAnswerSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer
 
 import random
 
@@ -144,13 +144,92 @@ class ParameterEditView(APIView):
         param.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
         
-from . import algo
+class BlogView(APIView):
+    authentication_classes = []
+    permission_classes = []
 
+    def get(self, request, format=None):
+        blogentries = BlogEntry.objects.all()
+        
+        response = []
+        for entry in blogentries:
+            response.append(BlogEntrySerializer(entry).data)
+
+        return Response(response, status.HTTP_200_OK)
+    
+class BlogSingleView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request, user_id: int, format=None):
+        # read the request body and create the entries
+        title = request.data["title"]
+        content = request.data["content"]
+        # try:
+        #     if len(content) > 1024:
+        blogentry = BlogEntry.objects.create(user_id=user_id, title=title, content=content)
+        blogentry.save()
+        #     else:
+        #         return Response(status=status.HTTP_400_BAD_REQUEST)
+        # except:
+        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_201_CREATED)
+    
+class CommentView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, user_id: int, blog_id: int, format=None):
+        comments = BlogComment.objects.filter(blog_id = blog_id)
+        
+        response = []
+        for comment in comments:
+            response.append(BlogCommentSerializer(comment).data)
+
+        return Response(response, status.HTTP_200_OK)
+
+    def post(self, request, user_id: int, blog_id: int, format=None):
+        content = request.data["content"]
+        try:
+            if len(content) < 1025:
+                comment = BlogComment.objects.create(user_id=user_id, content=content)
+                comment.save()
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_201_CREATED)
+    
+class LikeView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, user_id: int, blog_id: int, format=None):
+        likes = BlogLike.objects.filter(blog_id = blog_id)
+        
+        response = []
+        for like in likes:
+            response.append(BlogLikeSerializer(like).data)
+
+        return Response(response, status.HTTP_200_OK)
+
+    def post(self, request, user_id: int, blog_id: int, format=None):
+        try:
+            comment = BlogLike.objects.create(user_id=user_id, blog_id=blog_id)
+            comment.save()
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_201_CREATED)
+    
+from . import algo
 class SuggestionView(APIView):
     authentication_classes = []
     permission_classes = []
 
-    def get(self, request, user_id: int, log_id: KeyboardInterrupt, format=None):
+    def get(self, request, user_id: int, log_id: int, format=None):
         suggestions = Suggestion.objects.filter(user_id=user_id, logbook_entry_id=log_id)
 
         # no suggestion, generate one with algo
@@ -236,7 +315,6 @@ class SuggestionEditView(APIView):
             "perceived_effectiveness": suggestion.perceived_effectiveness,
             "effectiveness": suggestion.effectiveness
         }, status.HTTP_200_OK)
-
 class AuthTestView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
