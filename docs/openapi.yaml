@@ -543,9 +543,9 @@ paths:
               type: object
               properties:
                 perceived_effectiveness:
-                  type: float
+                  type: number
                 effectiveness:
-                  type: float
+                  type: number
       responses:
         '200':
           description: Suggestion updated successfully
