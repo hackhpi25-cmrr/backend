@@ -390,6 +390,12 @@ class SuggestionView(APIView):
     permission_classes = []
 
     def get(self, request, user_id: int, log_id: int, format=None):
+        # First check if the logbook exists
+        try:
+            logbook = Logbook.objects.get(id=log_id, user_id=user_id)
+        except Logbook.DoesNotExist:
+            return Response({"error": "Logbook not found"}, status=status.HTTP_404_NOT_FOUND)
+
         suggestions = Suggestion.objects.filter(user_id=user_id, logbook_entry_id=log_id)
 
         # no suggestion, generate one with algo
@@ -421,7 +427,7 @@ class SuggestionView(APIView):
             # get the suggestions
             score = algo.treatmentoptions(grouped_parameter_answers, [1 for _ in range(len(current_logbook_answers))],current_logbook_answers)
             """
-            refUser = UserProfile.objects.all().exclude(user_id==user_id)
+            refUser = UserProfile.objects.all().exclude(user_id=user_id)
             suggestions = algo.rankFromDBwithRef(log_id,refUser,20)
 
             

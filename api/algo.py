@@ -246,6 +246,14 @@ def rankFromDBwithRef(nowID, userProfilesIDs, limit):
     userID = Logbook.objects.get(id=nowID).user.id
 
     ranked = rankFromDB(nowID)
+    if not ranked:  # If ranked is empty
+        # Return a random treatment
+        treatments = Treatment.objects.all()
+        if treatments.exists():
+            random_treatment = random.choice(treatments)
+            return [[random_treatment.id, 0.5]]  # Return with neutral effectiveness
+        return []
+        
     if ranked[0][1] <= limit:
         return ranked
     
