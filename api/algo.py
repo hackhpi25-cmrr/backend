@@ -6,7 +6,11 @@ def treatmentoptions(points, weights, now):
     points[i][1] -> treatment effect
     points[i][j] -> j >= 2 -> value for point
 
-    return array of treatment with expected outcome
+    return array of treatments with expected outcome
+    score[i][0] -> treatmentID for treatment i
+    score[i][1] -> score for treatment i
+    score[i][2] -> dist for treatment i
+    score[i][3] -> effectivness for treatment i
     """
     normAdd = 10
     normMull = 1
@@ -35,6 +39,8 @@ def rankTreatmentByUse(score):
 
     score[i][0] -> treatmentID for treatment i
     score[i][1] -> score for treatment i
+    score[i][2] -> dist for treatment i
+    score[i][3] -> effectivness for treatment i
 
     return ranked treatment
     """
@@ -56,6 +62,8 @@ def rankTreatmentByDist(score):
 
     score[i][0] -> treatmentID for treatment i
     score[i][1] -> score for treatment i
+    score[i][2] -> dist for treatment i
+    score[i][3] -> effectivness for treatment i
 
     return ranked treatment
     """
