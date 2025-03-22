@@ -167,7 +167,7 @@ class LogbookView(APIView):
             suggestion.save()
             return Response(SuggestionSerializer(suggestion).data, status.HTTP_200_OK)
 
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(logbook.id, status=status.HTTP_201_CREATED)
 
 class BaselineView(APIView):
     authentication_classes = []
