@@ -397,7 +397,7 @@ def statisticsPassive(userID):
     
     return res
 
-def statisticsCustom (userID, parameterID):
+def statisticsCustom (userID, parameterID, norm):
     # Treatments holen
     suggestions = Suggestion.objects.all().filter(user_id=userID)
 
@@ -405,7 +405,10 @@ def statisticsCustom (userID, parameterID):
     for suggestion in suggestions:
         try:
             paraAns = ParameterAnswer.objects.get(logbook_entry_id=suggestion.logbook_entry.id, parameterID = parameterID)
-            ranking.append([suggestion.treatment.id, suggestion.effectiveness*paraAns.normalised_answer])
+            if (norm == 1):
+                ranking.append([suggestion.treatment.id, suggestion.effectiveness*paraAns.normalised_answer])
+            else:
+                ranking.append([suggestion.treatment.id, suggestion.effectiveness*(1-paraAns.normalised_answer)])
         except:
             continue
 
@@ -435,10 +438,10 @@ def retLogs(userID):
         tmp = []
         tmp.append(["Time", log.time])
         tmp.append(["Treatment", Suggestion.objects.get(logbook_entry=log).treatment.name])
-        tmp.append(["Perceived ffectiveness", Suggestion.objects.get(logbook_entry=log).perceived_effectiveness])
+        tmp.append(["Perceived effectiveness", Suggestion.objects.get(logbook_entry=log).perceived_effectiveness])
         for answer in ParameterAnswer.objects.all().filter(logbook_entry=log):
             tmp.append([answer.parameter.name, answer.answer])
         res.append(tmp)
-    res = sorted(res, key=lambda x: x[0][1])
+    res = sorted(res, key=lambda x: (x[0][1], x[1][1]))
 
     return res
