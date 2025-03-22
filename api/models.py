@@ -4,6 +4,11 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 
+class UserProfile(models.Model):
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_profile")
+    reference_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users_referencing_this_user", null=True, blank=True)
+
 class Parameter(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_parameters", null=True, blank=True)

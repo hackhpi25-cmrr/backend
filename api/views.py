@@ -9,14 +9,31 @@ from rest_framework import permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter, BlogEntry, BlogComment, BlogLike, EnumType
-from .serializers import BlogEntrySerializer, BlogCommentSerializer, BlogLikeSerializer, UserSerializer,ParameterSerializer, ParameterSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer, EnumTypeSerializer
+from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter, BlogEntry, BlogComment, BlogLike, EnumType, UserProfile
+from .serializers import BlogEntrySerializer, BlogCommentSerializer, BlogLikeSerializer, UserSerializer,ParameterSerializer, ParameterSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer, EnumTypeSerializer, UserProfileSerializer
 
 import random
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+class UserProfileView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, user_id: int, format=None):
+        userProfile = UserProfile.objects.filter(user_id=user_id)
+        return Response(UserProfileSerializer(userProfile).data, status.HTTP_200_OK)
+    
+    def post(self, request, user_id: int, format=None):
+        # read the request body and create the entries
+        reference = request.data["reference"]
+        userProfile = UserProfile.objects.filter(user_id=user_id)
+        userProfile.update(reference=reference)
+        userProfile.save()
+
+        return Response(status=status.HTTP_201_CREATED)
 
 class LogbookViewSingle(APIView):
     authentication_classes = []

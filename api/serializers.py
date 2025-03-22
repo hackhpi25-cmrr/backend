@@ -10,13 +10,20 @@ from .models import (
     Baseline,
     BlogEntry,
     BlogComment,
-    BlogLike
+    BlogLike,
+    UserProfile
 )
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'is_staff', 'date_joined']
+
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = '__all__'
 
 class ParameterSerializer(serializers.ModelSerializer):
     class Meta:
