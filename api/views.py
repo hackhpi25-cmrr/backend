@@ -13,6 +13,7 @@ from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, P
 from .serializers import BlogEntrySerializer, BlogCommentSerializer, BlogLikeSerializer, UserSerializer,ParameterSerializer, ParameterSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer, EnumTypeSerializer, UserProfileSerializer
 
 import random
+import json
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -472,6 +473,47 @@ class SuggestionEditView(APIView):
             "perceived_effectiveness": suggestion.perceived_effectiveness,
             "effectiveness": suggestion.effectiveness
         }, status.HTTP_200_OK)
+    
+class MetricActiveView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, user_id: int, format=None):
+
+        bestTreatments = algo.statisticsOverall(user_id)
+
+        if len(bestTreatments) > 0:
+            response = json.dumps(bestTreatments)
+            return Response(response, status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_201_CREATED)
+        
+class MetricPassiveView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, user_id: int, format=None):
+
+        bestTreatments = algo.statisticsPassive(user_id)
+
+        if len(bestTreatments) > 0:
+            response = json.dumps(bestTreatments)
+            return Response(response, status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_201_CREATED)
+        
+class MetricParameterView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, user_id: int, parameter_id: int, format=None):
+
+        bestTreatments = algo.statisticsCustom(user_id, parameter_id)
+        if len(bestTreatments) > 0:
+            response = json.dumps(bestTreatments)
+            return Response(response, status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_201_CREATED)
 
 class AuthTestView(APIView):
     authentication_classes = [JWTAuthentication]

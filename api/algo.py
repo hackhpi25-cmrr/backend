@@ -347,7 +347,7 @@ def passiveTreatment(nowID):
 
 def statisticsOverall(userID):
     # Treatments holen
-    suggestions = Suggestion.objects.all().filter(userID=userID)
+    suggestions = Suggestion.objects.all().filter(user_id=userID)
 
     ranking = []
     for suggestion in suggestions:
@@ -373,7 +373,7 @@ def statisticsOverall(userID):
 
 def statisticsPassive(userID):
     # Treatments holen
-    suggestions = Suggestion.objects.all().filter(userID=userID, treatment__passive=True)
+    suggestions = Suggestion.objects.all().filter(user_id=userID, treatment__passive=True)
 
     ranking = []
     for suggestion in suggestions:
@@ -399,7 +399,7 @@ def statisticsPassive(userID):
 
 def statisticsCustom (userID, parameterID):
     # Treatments holen
-    suggestions = Suggestion.objects.all().filter(userID=userID)
+    suggestions = Suggestion.objects.all().filter(user_id=userID)
 
     ranking = []
     for suggestion in suggestions:
@@ -429,7 +429,7 @@ def statisticsCustom (userID, parameterID):
 
 
 def retLogs(userID):
-    logs = Logbook.objects.all().filter(user=userID, is_auto_generated=False)
+    logs = Logbook.objects.all().filter(user_id=userID, is_auto_generated=False)
     res = []
     for log in logs:
         tmp = []

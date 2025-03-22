@@ -55,6 +55,10 @@ urlpatterns = [
     path('blogentries', apiViews.BlogView.as_view()),
     path('users/<int:user_id>/blog/<int:blog_id>/comment', apiViews.CommentView.as_view()),
     path('users/<int:user_id>/blog/<int:blog_id>/like', apiViews.LikeView.as_view()),
+    # Metrics 
+    path('users/<int:user_id>/metric/active/all', apiViews.MetricActiveView.as_view()),
+    path('users/<int:user_id>/metric/passive/all', apiViews.MetricPassiveView.as_view()),
+    path('users/<int:user_id>/metric/parameter/<int:parameter_id>', apiViews.MetricParameterView.as_view()),
 
     path('register', apiViews.RegisterView.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
