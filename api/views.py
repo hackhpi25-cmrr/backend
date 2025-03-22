@@ -126,7 +126,7 @@ class LogbookView(APIView):
 
     def get(self, request, user_id: int, format=None):
 
-        response = json.dumps(algo.retLogs(user_id))
+        response = algo.retLogs(user_id)
 
         # logbooks = Logbook.objects.filter(user_id=user_id)
         

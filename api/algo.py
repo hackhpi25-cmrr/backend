@@ -431,18 +431,36 @@ def statisticsCustom (userID, parameterID, norm):
     return res
 
 
+import json
+from datetime import datetime
 def retLogs(userID):
     logs = Logbook.objects.all().filter(user_id=userID, is_auto_generated=False)
     res = []
+    
     for log in logs:
         if Suggestion.objects.filter(logbook_entry=log).exists():
-            tmp = []
-            tmp.append(["Time", log.time])
-            tmp.append(["Treatment", Suggestion.objects.get(logbook_entry=log).treatment.name])
-            tmp.append(["Perceived effectiveness", Suggestion.objects.get(logbook_entry=log).perceived_effectiveness])
+            log_entry = {}
+            suggestion = Suggestion.objects.get(logbook_entry=log)
+            
+            # Hauptinformationen
+            if isinstance(log.time, datetime):
+                log_entry["time"] = log.time.isoformat()
+            else:
+                log_entry["time"] = str(log.time)
+                
+            log_entry["treatment"] = suggestion.treatment.name
+            log_entry["perceived_effectiveness"] = suggestion.perceived_effectiveness
+            
+            # Parameter Antworten
+            parameters = {}
             for answer in ParameterAnswer.objects.filter(logbook_entry=log):
-                tmp.append([answer.parameter.name, answer.answer])
-            res.append(tmp)
-    res = sorted(res, key=lambda x: (x[0][1], x[1][1]))
-
+                parameters[answer.parameter.name] = answer.answer
+            
+            log_entry["parameters"] = parameters
+            res.append(log_entry)
+    
+    # Sortierung nach Zeit und dann nach Treatment
+    res = sorted(res, key=lambda x: (x["time"], x["treatment"]))
+    
+    # Direkt das Python-Objekt zurückgeben, OHNE json.dumps()
     return res
