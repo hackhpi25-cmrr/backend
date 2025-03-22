@@ -402,16 +402,9 @@ def passiveTreatment(nowID):
         if treatment.id not in rankingID:
             missing.append(treatment.id)
 
-    elem = choose_element(rankingID, missing)
+    return choose_element(rankingID, missing)
 
-    if elem is None:
-        # If no element chosen, return a random passive treatment
-        passive_treatments = Treatment.objects.filter(passive=True)
-        if passive_treatments.exists():
-            return random.choice(passive_treatments).id
-        return None
-        
-    return elem  # Return the treatment ID directly
+    
 
     
 
