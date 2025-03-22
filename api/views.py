@@ -193,7 +193,7 @@ class CommentView(APIView):
         content = request.data["content"]
         try:
             if len(content) < 1025:
-                comment = BlogComment.objects.create(user_id=user_id, content=content)
+                comment = BlogComment.objects.create(user_id=user_id, blog_id=blog_id, content=content)
                 comment.save()
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -213,12 +213,17 @@ class LikeView(APIView):
         for like in likes:
             response.append(BlogLikeSerializer(like).data)
 
-        return Response(response, status.HTTP_200_OK)
+
+        return Response(len(response), status.HTTP_200_OK)
 
     def post(self, request, user_id: int, blog_id: int, format=None):
         try:
-            comment = BlogLike.objects.create(user_id=user_id, blog_id=blog_id)
-            comment.save()
+            if BlogLike.objects.filter(user_id=user_id, blog_id=blog_id).exists():
+                like = BlogLike.objects.filter(user_id=user_id, blog_id=blog_id)
+                like.delete()
+            else:
+                like = BlogLike.objects.create(user_id=user_id, blog_id=blog_id)
+                like.save()
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
