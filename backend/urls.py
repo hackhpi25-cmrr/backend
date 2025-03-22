@@ -34,6 +34,8 @@ urlpatterns = [
     path('users/<int:user_id>/logs/<int:log_id>', apiViews.LogbookViewSingle.as_view()),
     path('users/<int:user_id>/logs', apiViews.LogbookView.as_view()),
     path('users/<int:user_id>/baseline', apiViews.BaselineView.as_view()),
+    path('users/<int:user_id>/parameters', apiViews.ParameterView.as_view()),
+    path('users/<int:user_id>/parameters/<int:parameter_id>', apiViews.ParameterEditView.as_view()),
     path('register', apiViews.RegisterView.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),

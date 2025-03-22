@@ -8,7 +8,7 @@ from rest_framework import permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import Logbook, ParameterAnswer, Baseline
+from .models import Logbook, ParameterAnswer, Baseline, Parameter
 from .serializers import UserSerializer, ParameterAnswerSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -77,10 +77,29 @@ class LogbookView(APIView):
                 logbook_entry=logbook
             ).save()
 
-        return Response({
-            "id": logbook.id,
-            "time": logbook.time
-        }, status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
+    
+class ParameterView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, user_id: int, format=None):
+        parameters = Parameter.objects.filter(user_id=user_id)
+        
+        response = []
+        for parameter in parameters:
+            response.append(ParameterSerializer(parameter).data)
+
+        return Response(response, status.HTTP_200_OK)
+
+    def post(self, request, user_id: int, format=None):
+        # read the request body and create the entries
+        name = request.data["name"]
+        param_type = request.data["type"]
+        parameter = Parameter.objects.create(user_id=user_id, name=name, parameter_type=param_type)
+        parameter.save()
+
+        return Response(status=status.HTTP_201_CREATED)
 
 class BaselineView(APIView):
     authentication_classes = []
@@ -108,6 +127,19 @@ class BaselineView(APIView):
             ).save()
 
         return Response(status=status.HTTP_201_CREATED)
+
+class ParameterEditView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def delete(self, request, user_id: int, parameter_id: int, format=None):
+        param = Parameter.objects.filter(id=parameter_id)
+        breakpoint()
+        if param is None or not (param.exists()):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+         
+        param.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
         
 
 class AuthTestView(APIView):
