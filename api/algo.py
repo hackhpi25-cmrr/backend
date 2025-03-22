@@ -25,7 +25,7 @@ def treatmentoptions(points, weights, now):
                 cnt += 1
                 continue
             res[1] *= (abs(point[i]-now[i-2])* weights[i])
-        res[1] /= (len(point)-2-cnt)
+        res[1] /= (len(point)-1-cnt)
         res.append(res[1])
         res[2] *= (normAdd - points[1])*normMull
         res.append(point[1])
@@ -102,7 +102,7 @@ def anticipatePainlevel(points, weights, now, skipped):
                 cnt += 1
                 continue
             res *= (abs(point[i]-now[i-1])* weights[i])
-        res /= (len(point)-2-cnt)
+        res /= (len(point)-1-cnt)
         if(res < dist or dist == -1):
             dist = res
             pain = point[0]
@@ -132,7 +132,7 @@ def bestUserProfile(userProfiles, weights, now):
                 cnt += 1
                 continue
             score[1] *= (abs(user[i]-now[i-1])* weights[i])
-        score[1] /= (len(user)-1-cnt)
+        score[1] /= (len(user)-cnt)
     sortedScore = sorted(score, key=lambda x: (x[1], x[0]))
     return sortedScore[0][0]
 
