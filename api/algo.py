@@ -109,3 +109,29 @@ def anticipatePainlevel(points, weights, now, skipped):
 
     return pain
 
+
+def bestUserProfile(userProfiles, weights, now):
+    """
+    userProfiles array of user
+    
+    userProfiles[i][0] -> userID
+    userProfiles[i][j] -> j >= 1 -> values from baseline
+
+    now array of values
+
+    now[i] -> i >= 0 -> values from now
+
+    return best userID
+    """
+    score = []
+    for user in userProfiles:
+        score.append([user[0], 1])
+        cnt = 0
+        for i in range(1, len(user)):
+            if(user[i]==None or now[i-1]==None):
+                cnt += 1
+                continue
+            score[1] *= (abs(user[i]-now[i-1])* weights[i])
+        score[1] /= (len(user)-1-cnt)
+    sortedScore = sorted(score, key=lambda x: (x[1], x[0]))
+    return sortedScore[0][0]
