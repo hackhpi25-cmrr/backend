@@ -1,0 +1,21 @@
+[Service]
+# Service name
+Type=simple
+# Command to execute when the service is started
+ExecStart=/usr/bin/python3.10 /home/azureuser/backend/manage.py runserver 0.0.0.0:80
+# Restart the service on failure
+Restart=on-failure
+# Log output
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=hackhpi25
+# User and group to run the service as
+User=azureuser
+Group=azureuser
+# set capabilities for port 80
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+[Install]
+# Start the service when the system boots
+WantedBy=multi-user.target
+
