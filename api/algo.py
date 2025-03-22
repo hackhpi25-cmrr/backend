@@ -99,15 +99,21 @@ def anticipatePainlevel(points, weights, now):
 
     return anticiapted Painlevel
     """
+    if not points or not now:  # Handle empty lists
+        return 0.5  # Default pain level if no data
+
     dist = float('inf')
     pain = 0
     for point in points:
-        if point == None or len(point)==0:
+        if point is None or len(point) == 0:
             continue
         res = 1  # Initialize to 1 instead of 0 for multiplication
         cnt = 0
         for i in range(1, len(point)):
-            if(point[i]==None or now[i-1]==None):
+            if i-1 >= len(now):  # Check if index exists in now array
+                cnt += 1
+                continue
+            if point[i] is None or now[i-1] is None:
                 cnt += 1
                 continue
             res *= (abs(point[i]-now[i-1])* weights[i])
@@ -115,7 +121,7 @@ def anticipatePainlevel(points, weights, now):
             res /= (len(point)-1-cnt)
         else:
             res = float('inf')  # If all points were skipped, consider this point as far away as possible
-        if(res < dist):
+        if res < dist:
             dist = res
             pain = point[0]
 
@@ -332,68 +338,56 @@ def passiveTreatment(nowID):
         if logbook.id == nowID or logbook.user.id != userID:
             continue
         # Suggestions durchsuchen
-        tmp = []
         for suggestion in suggestions:
             if suggestion.logbook_entry.id == logbook.id:
+                tmp = []
                 tmp.append(suggestion.treatment.id)
-                tmp.append(suggestion.effectiveness)
+                tmp.append(suggestion.effectiveness if suggestion.effectiveness is not None else 0.5)
                 for parameterID in parameterIDs:
                     try:
                         answer = ParameterAnswer.objects.get(parameter_id=parameterID, logbook_entry_id=logbook.id)
                         tmp.append(answer.normalised_answer)
                     except ParameterAnswer.DoesNotExist:
                         tmp.append(None)
-    points.append(tmp)
+                points.append(tmp)
+
+    if not points:  # If no points found, return a random passive treatment
+        passive_treatments = Treatment.objects.filter(passive=True)
+        if passive_treatments.exists():
+            return random.choice(passive_treatments).id
+        return None
 
     pain = anticipatePainlevel(points, weights, now)
 
     if (pain < limit):
         return None    
 
-    parameters = Parameter.objects.all()
-    
-    # Gewichtungen und Sortierung filtern
-    parameterIDs = []
-    weights = []
-    for parameter in parameters:
-        weights.append(parameter.weight)
-        parameterIDs.append(parameter.id)
-    
-    # Logbucheintrag von now holen
-    nowlogbook = Logbook.objects.get(id=nowID)
-    userID = nowlogbook.user.id
-    now = []
-
-    # Parameterantworten von now holen
-    for parameterID in parameterIDs:
-        try:
-            answer = ParameterAnswer.objects.get(parameter_id=parameterID, logbook_entry_id=nowID)
-            now.append(answer.normalised_answer)
-        except ParameterAnswer.DoesNotExist:
-            now.append(None)
-
-    points = []
-    Logbooks = Logbook.objects.all()
-    suggestions = Suggestion.objects.all()
+    # Get passive suggestions
+    passive_points = []
     for logbook in Logbooks:
         if logbook.id == nowID or logbook.user.id != userID:
             continue
-        # Suggestions durchsuchen
-        tmp = []
         for suggestion in suggestions:
-            if suggestion.logbook_entry.id == logbook.id and suggestion.treatment.passive == True:
+            if suggestion.logbook_entry.id == logbook.id and suggestion.treatment.passive:
+                tmp = []
                 tmp.append(suggestion.treatment.id)
-                tmp.append(suggestion.effectiveness)
+                tmp.append(suggestion.effectiveness if suggestion.effectiveness is not None else 0.5)
                 for parameterID in parameterIDs:
                     try:
                         answer = ParameterAnswer.objects.get(parameter_id=parameterID, logbook_entry_id=logbook.id)
                         tmp.append(answer.normalised_answer)
                     except ParameterAnswer.DoesNotExist:
                         tmp.append(None)
-    points.append(tmp)
+                passive_points.append(tmp)
+
+    if not passive_points:  # If no passive points found, return a random passive treatment
+        passive_treatments = Treatment.objects.filter(passive=True)
+        if passive_treatments.exists():
+            return random.choice(passive_treatments).id
+        return None
 
     # Scores berechnen
-    score = treatmentoptions(points, weights, now)
+    score = treatmentoptions(passive_points, weights, now)
 
     # Ranking
     ranked = rankTreatmentByUse(score)
@@ -402,7 +396,7 @@ def passiveTreatment(nowID):
     for rank in ranked:
         rankingID.append(rank[0])  # rank[0] is already the treatment ID
     
-    treatments = Treatment.objects.all().filter(passive=True)
+    treatments = Treatment.objects.filter(passive=True)
     missing = []
     for treatment in treatments:
         if treatment.id not in rankingID:
@@ -411,6 +405,10 @@ def passiveTreatment(nowID):
     elem = choose_element(rankingID, missing)
 
     if elem is None:
+        # If no element chosen, return a random passive treatment
+        passive_treatments = Treatment.objects.filter(passive=True)
+        if passive_treatments.exists():
+            return random.choice(passive_treatments).id
         return None
         
     return elem  # Return the treatment ID directly
