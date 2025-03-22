@@ -27,7 +27,7 @@ def treatmentoptions(points, weights, now):
             res[1] *= (abs(point[i]-now[i-2])* weights[i])
         res[1] /= (len(point)-1-cnt)
         res.append(res[1])
-        res[2] *= (normAdd - points[1])*normMull
+        res[2] *= (normAdd - point[1]) * normMull
         res.append(point[1])
         score.append(res)
 

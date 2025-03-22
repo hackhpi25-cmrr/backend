@@ -251,7 +251,7 @@ class SuggestionView(APIView):
                 vec = [None for _ in range(len(parameters) + 2)]
                 vec[0] = suggestion.treatment.id
                 vec[1] = suggestion.effectiveness
-                for answer in suggestion.logbook_entry.answers:
+                for answer in suggestion.logbook_entry.answers.all():
                     vec[answer.parameter_id + 2] = answer.normalised_answer
                 grouped_parameter_answers.append(vec)
 
@@ -283,7 +283,7 @@ class SuggestionView(APIView):
             # normalize weights
             for suggestion in suggestions:
                 suggestion[1] /= sum_score
-            chosen_suggestion = random.choices(suggestions, [s[1] for s in range(len(suggestions))])
+            chosen_suggestion = random.choices(suggestions, [s[1] for s in suggestions])
             # save the suggestion
             sug = Suggestion.objects.create(
                 logbook_entry_id=log_id,
