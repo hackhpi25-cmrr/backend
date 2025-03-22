@@ -114,7 +114,7 @@ paths:
                     type: integer
                   user_id:
                     type: integer
-                  parameters:
+                  entries:
                     type: object
                     additionalProperties:
                       type: number
@@ -174,7 +174,7 @@ paths:
               properties:
                 user_id:
                   type: integer
-                parameters:
+                entries:
                   type: object
                   additionalProperties:
                     type: number
@@ -190,7 +190,7 @@ paths:
                     type: integer
                   user_id:
                     type: integer
-                  parameters:
+                  entries:
                     type: object
                     additionalProperties:
                       type: number
@@ -215,7 +215,7 @@ paths:
                   type: integer
                 user_id:
                   type: integer
-                parameters:
+                entries:
                   type: object
                   additionalProperties:
                     type: number
@@ -231,13 +231,13 @@ paths:
                     type: integer
                   user_id:
                     type: integer
-                  parameters:
+                  entries:
                     type: object
                     additionalProperties:
                       type: number
 
 
-  /users/{user}/logs/parameters:
+  /users/{user}/parameters:
     post:
         summary: Create a new log parameter for a user
         operationId: createUserLogParameter
@@ -281,9 +281,9 @@ paths:
                       type: string
                     type:
                       type: string
-    put:
-      summary: Update a log parameter for a user
-      operationId: updateUserLogParameter
+    get:
+      summary: Get all log parameters for a user
+      operationId: getUserLogParameters
       parameters:
         - name: user
           in: path
@@ -291,26 +291,46 @@ paths:
           description: The user ID
           schema:
             type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                user_id:
-                  type: integer
-                title:
-                  type: string
-                description:
-                  type: string
-                type:
-                  type: string
       responses:
         '200':
-          description: Log parameter updated successfully
+          description: A list of log parameters for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    user_id:
+                      type: integer
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    type:
+                      type: string
+                      
+  /users/{user}/parameters/{parameter}:
+    put:
+        summary: Update a log parameter for a user
+        operationId: updateUserLogParameter
+        parameters:
+          - name: user
+            in: path
+            required: true
+            description: The user ID
+            schema:
+              type: integer
+          - name: parameter
+            in: path
+            required: true
+            description: The parameter ID
+            schema:
+              type: integer
+        requestBody:
+          required: true
           content:
             application/json:
               schema:
@@ -326,19 +346,53 @@ paths:
                     type: string
                   type:
                     type: string
+        responses:
+          '200':
+            description: Log parameter updated successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    user_id:
+                      type: integer
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    type:
+                      type: string
+    delete:
+        summary: Delete a log parameter for a user
+        operationId: deleteUserLogParameter
+        parameters:
+          - name: user
+            in: path
+            required: true
+            description: The user ID
+            schema:
+              type: integer
+          - name: parameter
+            in: path
+            required: true
+            description: The parameter ID
+            schema:
+              type: integer
+        responses:
+          '200':
+            description: Log parameter deleted successfully
+          '404':
+            description: Log parameter not found
+      
+  /parameters:
     get:
-      summary: Get all log parameters for a user
-      operationId: getUserLogParameters
-      parameters:
-        - name: user
-          in: path
-          required: true
-          description: The user ID
-          schema:
-            type: integer
+      summary: Get all parameters
+      operationId: getParameters
       responses:
         '200':
-          description: A list of log parameters for the user
+          description: A list of all log parameters
           content:
             application/json:
               schema:
@@ -405,3 +459,36 @@ paths:
                           type: integer
                         answer:
                           type: number
+
+  /users/{user}/logs/{log}/suggestion:
+    get:
+      summary: Get a suggestion for a specific log entry
+      operationId: getUserLogTreatmentSuggestion
+      parameters:
+        - name: user
+          in: path
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+        - name: log
+          in: path
+          required: true
+          description: The log entry ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A treatment suggestion for the log entry
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  suggestion:
+                    id: int
+        '404':
+          description: Log entry not found
+        '400':
+          description: Invalid user_id or log format
+  
