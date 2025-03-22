@@ -330,7 +330,7 @@ def passiveTreatment(nowID):
 
     rankingID = []
     for rank in ranked:
-        rankingID.append(rank[0])
+        rankingID.append(rank[0].treatment.id)
     
     treatments = Treatment.objects.all().filter(passive=True)
     missing = []
