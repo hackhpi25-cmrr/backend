@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0006_parameter_passive_alter_parameter_name'),
+        ('api', '0001_initial'),
     ]
 
     operations = [
