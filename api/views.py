@@ -268,14 +268,15 @@ class SuggestionView(APIView):
             score = algo.treatmentoptions(grouped_parameter_answers, [1 for _ in range(len(current_logbook_answers))],current_logbook_answers)
             suggestions = algo.rankTreatmentByUse(score)
 
+            
             if len(suggestions) == 0:
-                return Response(Suggestion.objects.create(
+                sug = Suggestion.objects.create(
                         logbook_entry_id=log_id,
                         user_id=user_id,
                         treatment_id=random.choice(Treatment.objects.all()).id,
-                    ).save(), 
-                    status.HTTP_200_OK
-                )
+                    )
+                sug.save()
+                return Response(SuggestionSerializer(sug).data, status.HTTP_200_OK)
 
             # Pick suggestion by randomization with weights
             sum_score = sum([suggestion[1] for suggestion in suggestions])
@@ -284,14 +285,15 @@ class SuggestionView(APIView):
                 suggestion[1] /= sum_score
             chosen_suggestion = random.choices(suggestions, [s[1] for s in range(len(suggestions))])
             # save the suggestion
-            Suggestion.objects.create(
+            sug = Suggestion.objects.create(
                 logbook_entry_id=log_id,
                 user_id=user_id,
                 treatment_id=chosen_suggestion[0][0],
-            ).save()
-            return Response(chosen_suggestion[0], status.HTTP_200_OK)
+            )
+            sug.save()
+            return Response(SuggestionSerializer(sug).data, status.HTTP_200_OK)
 
-        return Response(suggestions[0], status.HTTP_200_OK)
+        return Response(SuggestionSerializer(suggestions[0]).data, status.HTTP_200_OK)
 
 class SuggestionEditView(APIView):
     authentication_classes = []
@@ -320,6 +322,7 @@ class SuggestionEditView(APIView):
             "perceived_effectiveness": suggestion.perceived_effectiveness,
             "effectiveness": suggestion.effectiveness
         }, status.HTTP_200_OK)
+
 class AuthTestView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
