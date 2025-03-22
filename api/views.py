@@ -133,10 +133,9 @@ class LogbookView(APIView):
         return Response(response, status.HTTP_200_OK)
 
     def post(self, request, user_id: int, format=None):
-        if "is_auto_generated" not in request.data:
-            return Response("Bad Request", status.HTTP_400_BAD_REQUEST)
-        
-        is_passive = request.data["is_auto_generated"]
+        is_passive = False
+        if "is_auto_generated" in request.data:
+            is_passive = request.data["is_auto_generated"]
 
         logbook = Logbook.objects.create(user_id=user_id, is_auto_generated=is_passive)
         logbook.save()
