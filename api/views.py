@@ -442,10 +442,15 @@ class SuggestionView(APIView):
 
             # Pick suggestion by randomization with weights
             sum_score = sum([suggestion[1] for suggestion in suggestions])
-            # normalize weights
-            for suggestion in suggestions:
-                suggestion[1] /= sum_score
-            chosen_suggestion = random.choices(suggestions, [s[1] for s in suggestions])
+            
+            if sum_score == 0:
+                # If all scores are zero, use equal weights
+                weights = [1.0 / len(suggestions)] * len(suggestions)
+            else:
+                # normalize weights
+                weights = [s[1] / sum_score for s in suggestions]
+                
+            chosen_suggestion = random.choices(suggestions, weights=weights)
             # save the suggestion
             sug = Suggestion.objects.create(
                 logbook_entry_id=log_id,
