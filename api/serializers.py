@@ -84,7 +84,6 @@ class BaselineSerializer(serializers.ModelSerializer):
         model = Baseline
         fields = ['id', 'user', 'question', 'normalised_answer']
 
-        fields = ['url', 'username', 'email', 'is_staff']
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)

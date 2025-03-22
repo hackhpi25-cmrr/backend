@@ -8,8 +8,8 @@ from rest_framework import permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import Logbook, ParameterAnswer
-from .serializers import UserSerializer, ParameterAnswerSerializer, LogbookSerializer, RegisterSerializer
+from .models import Logbook, ParameterAnswer, Baseline
+from .serializers import UserSerializer, ParameterAnswerSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -81,7 +81,33 @@ class LogbookView(APIView):
             "id": logbook.id,
             "time": logbook.time
         }, status.HTTP_201_CREATED)
-    
+
+class BaselineView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, user_id: int, format=None):
+        baselines = Baseline.objects.filter(user_id=user_id)
+        if baselines is None or len(baselines) == 0:
+            return Response("Not found", status.HTTP_404_NOT_FOUND)
+        
+        response = []
+        for baseline in baselines:
+            response.append(BaselineSerializer(baseline).data)
+
+        return Response(response, status.HTTP_200_OK)
+
+    def post(self, request, user_id: int, format=None):
+        # read the request body and create the entries
+        entries = request.data["entries"]
+        for entry in entries:
+            Baseline.objects.create(
+                question_id=entry["question_id"],
+                normalised_answer=entry["normalised_answer"],
+                user_id=user_id
+            ).save()
+
+        return Response(status=status.HTTP_201_CREATED)
         
 
 class AuthTestView(APIView):
