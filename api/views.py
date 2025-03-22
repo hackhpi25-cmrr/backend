@@ -336,7 +336,7 @@ class SuggestionView(APIView):
             # get the suggestions
             score = algo.treatmentoptions(grouped_parameter_answers, [1 for _ in range(len(current_logbook_answers))],current_logbook_answers)
             """
-            refUser = Userprofile.objects.all().filter(user_id!=user_id)
+            refUser = UserProfile.objects.all().filter(user_id!=user_id)
             suggestions = algo.rankFromDBwithRef(log_id,refUser,20)
 
             
