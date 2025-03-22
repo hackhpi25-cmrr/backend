@@ -69,6 +69,8 @@ class Treatment(models.Model):
     
     name = models.CharField(max_length=256)
 
+    passive = models.BooleanField(default=False)
+
     def __str__(self):
         return self.name
 
