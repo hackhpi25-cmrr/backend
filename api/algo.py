@@ -18,7 +18,7 @@ def treatmentoptions(points, weights, now):
     normMull = 1
     score = []
     for point in points:
-        if point.empty():
+        if point == None or len(point)==0:
             continue
         res = []
         res.append(point[0])
@@ -98,7 +98,7 @@ def anticipatePainlevel(points, weights, now):
     dist = -1
     pain = 0
     for point in points:
-        if point.empty():
+        if point == None or len(point)==0:
             continue
         res = 0
         
