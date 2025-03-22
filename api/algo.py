@@ -399,12 +399,15 @@ def statisticsPassive(userID):
 
 def statisticsCustom (userID, parameterID):
     # Treatments holen
-    suggestions = Suggestion.objects.all().filter(userID=userID, treatmentID=treatmentID)
+    suggestions = Suggestion.objects.all().filter(userID=userID)
 
     ranking = []
     for suggestion in suggestions:
-        paraAns = ParameterAnswer.objects.get(logbook_entry_id=suggestion.logbook_entry.id, parameterID = parameterID)
-        ranking.append([suggestion.treatment.id, suggestion.effectiveness*paraAns.normalised_answer])
+        try:
+            paraAns = ParameterAnswer.objects.get(logbook_entry_id=suggestion.logbook_entry.id, parameterID = parameterID)
+            ranking.append([suggestion.treatment.id, suggestion.effectiveness*paraAns.normalised_answer])
+        except:
+            continue
 
     # Treatments sortieren
     ranking = sorted(ranking, key=lambda x: x[1])
@@ -423,3 +426,5 @@ def statisticsCustom (userID, parameterID):
             break
     
     return res
+
+
