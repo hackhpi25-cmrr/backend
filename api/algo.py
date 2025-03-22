@@ -29,10 +29,11 @@ def treatmentoptions(points, weights, now):
                 cnt += 1
                 continue
             res[1] *= (abs(point[i]-now[i-2])* weights[i])
-        res[1] /= (len(point)-1-cnt)
+        res[1] /= (len(point)-1-cnt) if (len(point)-1-cnt) > 0 else 1
         res.append(res[1])
-        res[2] *= (normAdd - point[1]) * normMull
-        res.append(point[1])
+        effectiveness = point[1] if point[1] is not None else 0.5  # Default effectiveness of 0.5 if None
+        res[2] *= (normAdd - effectiveness) * normMull
+        res.append(effectiveness)
         score.append(res)
 
     return score
