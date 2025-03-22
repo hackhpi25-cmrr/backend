@@ -216,7 +216,16 @@ paths:
                 user_id:
                   type: integer
                 entries:
-                  type: object
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      parameter:
+                        type: integer
+                      answer:
+                        type: number
+                      normalized_answer:
+                        type: number
                   additionalProperties:
                     type: number
       responses:
@@ -329,6 +338,13 @@ paths:
             description: The parameter ID
             schema:
               type: integer
+          - name: limit
+            in: query
+            required: false
+            description: Limit the number of log entries returned
+            schema:
+              type: integer
+              default: 10
         requestBody:
           required: true
           content:
@@ -412,8 +428,8 @@ paths:
                       type: string
 
   /users/{user}/baseline:
-    put:
-      summary: Update baseline responses for a user
+    post:
+      summary: Create a baseline for a user
       operationId: updateUserBaseline
       parameters:
         - name: user
@@ -429,9 +445,7 @@ paths:
             schema:
               type: object
               properties:
-                user_id:
-                  type: integer
-                responses:
+                entries:
                   type: array
                   items:
                     type: object
