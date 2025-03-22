@@ -397,7 +397,7 @@ def statisticsPassive(userID):
     
     return res
 
-def statisticsCustom (userID, parameterID):
+def statisticsCustom (userID, parameterID, norm):
     # Treatments holen
     suggestions = Suggestion.objects.all().filter(userID=userID)
 
@@ -405,7 +405,10 @@ def statisticsCustom (userID, parameterID):
     for suggestion in suggestions:
         try:
             paraAns = ParameterAnswer.objects.get(logbook_entry_id=suggestion.logbook_entry.id, parameterID = parameterID)
-            ranking.append([suggestion.treatment.id, suggestion.effectiveness*paraAns.normalised_answer])
+            if (norm == 1):
+                ranking.append([suggestion.treatment.id, suggestion.effectiveness*paraAns.normalised_answer])
+            else:
+                ranking.append([suggestion.treatment.id, suggestion.effectiveness*(1-paraAns.normalised_answer)])
         except:
             continue
 
