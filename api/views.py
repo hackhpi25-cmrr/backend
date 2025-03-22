@@ -229,7 +229,6 @@ class ParameterEditView(APIView):
 
     def delete(self, request, user_id: int, parameter_id: int, format=None):
         param = Parameter.objects.filter(id=parameter_id)
-        breakpoint()
         if param is None or not (param.exists()):
             return Response(status=status.HTTP_404_NOT_FOUND)
          
@@ -475,3 +474,10 @@ class RegisterView(APIView):
             return Response({"message": "Created user successfully"}, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserView(APIView):
+    def get(self, request, user_id: int, format=None):
+        user = User.objects.filter(id=user_id)
+        if user is None or len(user) == 0:
+            return Response("Not found", status.HTTP_404_NOT_FOUND)
+        return Response(UserSerializer(user[0]).data, status.HTTP_200_OK)
