@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from django.db.models import Q
 from rest_framework import permissions, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,8 +9,10 @@ from rest_framework import permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import Logbook, ParameterAnswer, Baseline, Parameter
-from .serializers import UserSerializer, ParameterAnswerSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer
+from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter
+from .serializers import UserSerializer, ParameterAnswerSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer
+
+import random
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -141,6 +144,98 @@ class ParameterEditView(APIView):
         param.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
         
+from . import algo
+
+class SuggestionView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, user_id: int, log_id: KeyboardInterrupt, format=None):
+        suggestions = Suggestion.objects.filter(user_id=user_id, logbook_entry_id=log_id)
+
+        # no suggestion, generate one with algo
+        if suggestions is None or len(suggestions) == 0:
+            # get all parameters
+            parameters = list(Parameter.objects.filter(Q(user_id=user_id) | Q(user_id=None)))
+            parameters.append(list(Parameter.objects.filter(user_id=user_id)))
+            # get history suggestions for user
+            suggestions = Suggestion.objects.filter(user_id=user_id)
+            # get grouped parameter answers
+            grouped_parameter_answers = []
+
+            for suggestion in suggestions:
+                vec = [None for _ in range(len(parameters) + 2)]
+                vec[0] = suggestion.treatment.id
+                vec[1] = suggestion.effectiveness
+                for answer in suggestion.logbook_entry.answers:
+                    vec[answer.parameter_id + 2] = answer.normalised_answer
+                grouped_parameter_answers.append(vec)
+
+            # Get current status aka logbook answer
+            current_logbook = Logbook.objects.filter(user_id=user_id, id=log_id)
+            if current_logbook is None or len(current_logbook) == 0:
+                return Response("Not found", status.HTTP_404_NOT_FOUND)
+            current_logbook = current_logbook[0]
+            current_logbook_answers = [None for _ in range(len(parameters))]
+            for answer in current_logbook.answers.all():
+                current_logbook_answers[answer.parameter_id] = answer.normalised_answer
+            
+            # get the suggestions
+            score = algo.treatmentoptions(grouped_parameter_answers, [1 for _ in range(len(current_logbook_answers))],current_logbook_answers)
+            suggestions = algo.rankTreatmentByUse(score)
+
+            if len(suggestions) == 0:
+                return Response(Suggestion.objects.create(
+                        logbook_entry_id=log_id,
+                        user_id=user_id,
+                        treatment_id=random.choice(Treatment.objects.all()).id,
+                    ).save(), 
+                    status.HTTP_200_OK
+                )
+
+            # Pick suggestion by randomization with weights
+            sum_score = sum([suggestion[1] for suggestion in suggestions])
+            # normalize weights
+            for suggestion in suggestions:
+                suggestion[1] /= sum_score
+            chosen_suggestion = random.choices(suggestions, [s[1] for s in range(len(suggestions))])
+            # save the suggestion
+            Suggestion.objects.create(
+                logbook_entry_id=log_id,
+                user_id=user_id,
+                treatment_id=chosen_suggestion[0][0],
+            ).save()
+            return Response(chosen_suggestion[0], status.HTTP_200_OK)
+
+        return Response(suggestions[0], status.HTTP_200_OK)
+
+class SuggestionEditView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def put(self, request, user_id: int, log_id: int, suggestion_id: int, format=None):
+        suggestion = Suggestion.objects.filter(user_id=user_id, logbook_entry_id=log_id, id=suggestion_id)
+        if suggestion is None or len(suggestion) == 0:
+            return Response("Not found", status.HTTP_404_NOT_FOUND)
+        
+        suggestion = suggestion[0]
+        if suggestion.user.id != user_id:
+            return Response("Not found", status.HTTP_404_NOT_FOUND)
+
+        new_serialzier = SuggestionSerializer(data=request.data) 
+        if not new_serialzier.is_valid():
+            return Response("Invalid data", status.HTTP_400_BAD_REQUEST)
+        
+        new_serialzier.update(suggestion, request.data)
+
+        return Response({
+            "id": suggestion.id,
+            "logbook_entry": suggestion.logbook_entry.id,
+            "user": suggestion.user.id,
+            "treatment": suggestion.treatment.id,
+            "perceived_effectiveness": suggestion.perceived_effectiveness,
+            "effectiveness": suggestion.effectiveness
+        }, status.HTTP_200_OK)
 
 class AuthTestView(APIView):
     authentication_classes = [JWTAuthentication]

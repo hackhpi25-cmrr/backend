@@ -6,7 +6,11 @@ def treatmentoptions(points, weights, now):
     points[i][1] -> treatment effect
     points[i][j] -> j >= 2 -> value for point
 
-    return array of treatment with expected outcome
+    return array of treatments with expected outcome
+    score[i][0] -> treatmentID for treatment i
+    score[i][1] -> score for treatment i
+    score[i][2] -> dist for treatment i
+    score[i][3] -> effectivness for treatment i
     """
     normAdd = 10
     normMull = 1
@@ -35,6 +39,8 @@ def rankTreatmentByUse(score):
 
     score[i][0] -> treatmentID for treatment i
     score[i][1] -> score for treatment i
+    score[i][2] -> dist for treatment i
+    score[i][3] -> effectivness for treatment i
 
     return ranked treatment
     """
@@ -56,6 +62,8 @@ def rankTreatmentByDist(score):
 
     score[i][0] -> treatmentID for treatment i
     score[i][1] -> score for treatment i
+    score[i][2] -> dist for treatment i
+    score[i][3] -> effectivness for treatment i
 
     return ranked treatment
     """
@@ -101,3 +109,29 @@ def anticipatePainlevel(points, weights, now, skipped):
 
     return pain
 
+
+def bestUserProfile(userProfiles, weights, now):
+    """
+    userProfiles array of user
+    
+    userProfiles[i][0] -> userID
+    userProfiles[i][j] -> j >= 1 -> values from baseline
+
+    now array of values
+
+    now[i] -> i >= 0 -> values from now
+
+    return best userID
+    """
+    score = []
+    for user in userProfiles:
+        score.append([user[0], 1])
+        cnt = 0
+        for i in range(1, len(user)):
+            if(user[i]==None or now[i-1]==None):
+                cnt += 1
+                continue
+            score[1] *= (abs(user[i]-now[i-1])* weights[i])
+        score[1] /= (len(user)-1-cnt)
+    sortedScore = sorted(score, key=lambda x: (x[1], x[0]))
+    return sortedScore[0][0]
