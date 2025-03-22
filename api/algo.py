@@ -411,7 +411,9 @@ def passiveTreatment(nowID):
         if treatment.id not in rankingID:
             missing.append(treatment.id)
 
-    return choose_element(rankingID, missing)
+    elem = choose_element(rankingID, missing)
+
+    return Treatment.objects.get(id=elem)
 
     
 
