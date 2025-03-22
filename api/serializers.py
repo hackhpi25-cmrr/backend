@@ -88,10 +88,18 @@ class BaselineSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'question', 'normalised_answer']
 
 class BlogEntrySerializer(serializers.ModelSerializer):
+    likes_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = BlogEntry 
         fields = '__all__'
+    
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+    
+    def get_comments_count(self, obj):
+        return obj.comments.count()
 
 class BlogCommentSerializer(serializers.ModelSerializer):
 
