@@ -308,11 +308,9 @@ class SuggestionEditView(APIView):
         if suggestion.user.id != user_id:
             return Response("Not found", status.HTTP_404_NOT_FOUND)
 
-        new_serialzier = SuggestionSerializer(data=request.data) 
-        if not new_serialzier.is_valid():
-            return Response("Invalid data", status.HTTP_400_BAD_REQUEST)
-        
-        new_serialzier.update(suggestion, request.data)
+        suggestion.perceived_effectiveness = request.data["perceived_effectiveness"]
+        suggestion.effectiveness = request.data["effectiveness"]
+        suggestion.save()
 
         return Response({
             "id": suggestion.id,
