@@ -33,6 +33,7 @@ urlpatterns = [
     path('amiauth', apiViews.AuthTestView.as_view()),
     # User
     path('users/<int:user_id>', apiViews.UserView.as_view()),
+    path('users', apiViews.UserTokenView.as_view()),
     path('users/<int:user_id>/reference', apiViews.UserProfileView.as_view()),
     # Logbook
     path('users/<int:user_id>/logs/<int:log_id>', apiViews.LogbookViewSingle.as_view()),

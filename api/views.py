@@ -133,7 +133,12 @@ class LogbookView(APIView):
         return Response(response, status.HTTP_200_OK)
 
     def post(self, request, user_id: int, format=None):
-        logbook = Logbook.objects.create(user_id=user_id)
+        if "is_auto_generated" not in request.data:
+            return Response("Bad Request", status.HTTP_400_BAD_REQUEST)
+        
+        is_passive = request.data["is_auto_generated"]
+
+        logbook = Logbook.objects.create(user_id=user_id, is_auto_generated=is_passive)
         logbook.save()
 
         # read the request body and create the entries
@@ -145,6 +150,19 @@ class LogbookView(APIView):
                 normalised_answer=entry["normalised_answer"],
                 logbook_entry=logbook
             ).save()
+        
+        if is_passive:
+            treatment_id = algo.passiveTreatment(logbook.id)
+            if treatment_id is None:
+                return Response(status=status.HTTP_201_CREATED)
+            
+            suggestion = Suggestion.objects.create(
+                logbook_entry=logbook,
+                user_id=user_id,
+                treatment_id=treatment_id
+            )
+            suggestion.save()
+            return Response(SuggestionSerializer(suggestion).data, status.HTTP_200_OK)
 
         return Response(status=status.HTTP_201_CREATED)
 
@@ -478,6 +496,16 @@ class RegisterView(APIView):
 class UserView(APIView):
     def get(self, request, user_id: int, format=None):
         user = User.objects.filter(id=user_id)
+        if user is None or len(user) == 0:
+            return Response("Not found", status.HTTP_404_NOT_FOUND)
+        return Response(UserSerializer(user[0]).data, status.HTTP_200_OK)
+
+class UserTokenView(APIView):
+    def get(self, request, format=None):
+        if not request.user or not request.user.id:
+            return Response("Not found", status.HTTP_404_NOT_FOUND)
+        
+        user = User.objects.filter(id=request.user.id)
         if user is None or len(user) == 0:
             return Response("Not found", status.HTTP_404_NOT_FOUND)
         return Response(UserSerializer(user[0]).data, status.HTTP_200_OK)
