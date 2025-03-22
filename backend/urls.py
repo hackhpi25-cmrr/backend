@@ -42,6 +42,7 @@ urlpatterns = [
     # Parameters
     path('users/<int:user_id>/parameters', apiViews.ParameterView.as_view()),
     path('parameters', apiViews.ParameterGeneralView.as_view()),
+    path('parameter/<int:parameter_id>/enumtype', apiViews.EnumTypeGeneralView.as_view()),
     path('users/<int:user_id>/parameter/<int:parameter_id>', apiViews.ParameterEditView.as_view()),
     path('users/<int:user_id>/parameter/<int:parameter_id>/enumtype', apiViews.EnumTypeView.as_view()),
     # Suggestion

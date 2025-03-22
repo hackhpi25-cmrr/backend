@@ -265,6 +265,20 @@ class EnumTypeView(APIView):
             response.append(EnumTypeSerializer(enumType).data)
 
         return Response(response, status.HTTP_200_OK)
+    
+class EnumTypeGeneralView(APIView):
+    def get(self, request, parameter_id: int, format=None):
+        params = Parameter.objects.filter(user_id = None, id=parameter_id)
+        if not params.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        enumTypes = EnumType.objects.filter(parameter_id=parameter_id)
+
+        response = []
+        for enumType in enumTypes:
+            response.append(EnumTypeSerializer(enumType).data)
+
+        return Response(response, status.HTTP_200_OK)
 class BlogView(APIView):
     authentication_classes = []
     permission_classes = []
