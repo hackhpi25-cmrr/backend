@@ -22,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ParameterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Parameter
-        fields = ['id', 'user', 'name', 'type']
+        fields = '__all__'
 
 
 class EnumTypeSerializer(serializers.ModelSerializer):

@@ -9,8 +9,8 @@ from rest_framework import permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter, BlogEntry, BlogComment, BlogLike
-from .serializers import BlogEntrySerializer, BlogCommentSerializer, BlogLikeSerializer, UserSerializer,ParameterSerializer, ParameterAnswerSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer
+from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter, BlogEntry, BlogComment, BlogLike, EnumType, BaselineQuestion
+from .serializers import BlogEntrySerializer, BlogCommentSerializer, BlogLikeSerializer, UserSerializer,ParameterSerializer, ParameterSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer, EnumTypeSerializer, BaselineQuestionSerializer
 
 import random
 
@@ -81,28 +81,19 @@ class LogbookView(APIView):
             ).save()
 
         return Response(status=status.HTTP_201_CREATED)
-    
-class ParameterView(APIView):
+
+class BaselineQuestionView(APIView):
     authentication_classes = []
     permission_classes = []
 
-    def get(self, request, user_id: int, format=None):
-        parameters = Parameter.objects.filter(user_id=user_id)
+    def get(self, request, format=None):
+        questions = BaselineQuestion.objects.all()
         
         response = []
-        for parameter in parameters:
-            response.append(ParameterSerializer(parameter).data)
+        for question in questions:
+            response.append(BaselineQuestionSerializer(question).data)
 
         return Response(response, status.HTTP_200_OK)
-
-    def post(self, request, user_id: int, format=None):
-        # read the request body and create the entries
-        name = request.data["name"]
-        param_type = request.data["type"]
-        parameter = Parameter.objects.create(user_id=user_id, name=name, parameter_type=param_type)
-        parameter.save()
-
-        return Response(status=status.HTTP_201_CREATED)
 
 class BaselineView(APIView):
     authentication_classes = []
@@ -131,6 +122,41 @@ class BaselineView(APIView):
 
         return Response(status=status.HTTP_201_CREATED)
 
+class ParameterGeneralView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format=None):
+        parameters = Parameter.objects.filter(user_id=None)
+        
+        response = []
+        for parameter in parameters:
+            response.append(ParameterSerializer(parameter).data)
+
+        return Response(response, status.HTTP_200_OK)
+
+class ParameterView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, user_id: int, format=None):
+        parameters = Parameter.objects.filter(user_id=user_id)
+        
+        response = []
+        for parameter in parameters:
+            response.append(ParameterSerializer(parameter).data)
+
+        return Response(response, status.HTTP_200_OK)
+
+    def post(self, request, user_id: int, format=None):
+        # read the request body and create the entries
+        name = request.data["name"]
+        param_type = request.data["type"]
+        parameter = Parameter.objects.create(user_id=user_id, name=name, parameter_type=param_type)
+        parameter.save()
+
+        return Response(status=status.HTTP_201_CREATED)
+
 class ParameterEditView(APIView):
     authentication_classes = []
     permission_classes = []
@@ -143,7 +169,36 @@ class ParameterEditView(APIView):
          
         param.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class EnumTypeView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request, user_id: int, parameter_id: int, format=None):
+        # read the request body and create the entries
+        params = Parameter.objects.filter(user_id = user_id, id=parameter_id)
+        if not params.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
         
+        display = request.data["display"]
+        value = request.data["value"]
+        enumType = EnumType.objects.create(display=display, value=value, parameter_id=parameter_id)
+        enumType.save()
+
+        return Response(status=status.HTTP_201_CREATED)
+    
+    def get(self, request, user_id: int, parameter_id: int, format=None):
+        params = Parameter.objects.filter(user_id = user_id, id=parameter_id)
+        if not params.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        enumTypes = EnumType.objects.filter(parameter_id=parameter_id)
+
+        response = []
+        for enumType in enumTypes:
+            response.append(EnumTypeSerializer(enumType).data)
+
+        return Response(response, status.HTTP_200_OK)
 class BlogView(APIView):
     authentication_classes = []
     permission_classes = []
