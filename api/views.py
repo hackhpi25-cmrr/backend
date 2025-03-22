@@ -360,9 +360,8 @@ class SuggestionView(APIView):
 
         # no suggestion, generate one with algo
         if suggestions is None or len(suggestions) == 0:
-            # get all parameters
+            """# get all parameters
             parameters = list(Parameter.objects.filter(Q(user_id=user_id) | Q(user_id=None)))
-            parameters.append(list(Parameter.objects.filter(user_id=user_id)))
             # get history suggestions for user
             suggestions = Suggestion.objects.filter(user_id=user_id)
             # get grouped parameter answers
@@ -387,7 +386,9 @@ class SuggestionView(APIView):
             
             # get the suggestions
             score = algo.treatmentoptions(grouped_parameter_answers, [1 for _ in range(len(current_logbook_answers))],current_logbook_answers)
-            suggestions = algo.rankTreatmentByUse(score)
+            """
+            refUser = UserProfile.objects.all().filter(user_id!=user_id)
+            suggestions = algo.rankFromDBwithRef(log_id,refUser,20)
 
             
             if len(suggestions) == 0:
