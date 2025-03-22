@@ -343,3 +343,83 @@ def passiveTreatment(nowID):
     
 
 
+
+
+def statisticsOverall(userID):
+    # Treatments holen
+    suggestions = Suggestion.objects.all().filter(userID=userID)
+
+    ranking = []
+    for suggestion in suggestions:
+        ranking.append([suggestion.treatment.id, suggestion.effectiveness])
+
+    # Treatments sortieren
+    ranking = sorted(ranking, key=lambda x: x[1])
+
+    limit = 5
+    
+    contains = []
+    res = []
+
+    for rank in ranking:
+        if rank[0] in contains:
+            continue
+        contains.append(rank[0])
+        res.append(Treatment.objects.get(id=rank[0]).name)
+        if len(res) >= limit:
+            break
+    
+    return res
+
+def statisticsPassive(userID):
+    # Treatments holen
+    suggestions = Suggestion.objects.all().filter(userID=userID, treatment__passive=True)
+
+    ranking = []
+    for suggestion in suggestions:
+        ranking.append([suggestion.treatment.id, suggestion.effectiveness])
+
+    # Treatments sortieren
+    ranking = sorted(ranking, key=lambda x: x[1])
+
+    limit = 5
+    
+    contains = []
+    res = []
+
+    for rank in ranking:
+        if rank[0] in contains:
+            continue
+        contains.append(rank[0])
+        res.append(Treatment.objects.get(id=rank[0]).name)
+        if len(res) >= limit:
+            break
+    
+    return res
+
+def statisticsCustom (userID, parameterID):
+    # Treatments holen
+    suggestions = Suggestion.objects.all().filter(userID=userID, treatmentID=treatmentID)
+
+    ranking = []
+    for suggestion in suggestions:
+        paraAns = ParameterAnswer.objects.get(logbook_entry_id=suggestion.logbook_entry.id, parameterID = parameterID)
+        ranking.append([suggestion.treatment.id, suggestion.effectiveness*paraAns.normalised_answer])
+
+    # Treatments sortieren
+    ranking = sorted(ranking, key=lambda x: x[1])
+
+    limit = 5
+    
+    contains = []
+    res = []
+
+    for rank in ranking:
+        if rank[0] in contains:
+            continue
+        contains.append(rank[0])
+        res.append(Treatment.objects.get(id=rank[0]).name)
+        if len(res) >= limit:
+            break
+    
+    return res
