@@ -485,10 +485,62 @@ paths:
               schema:
                 type: object
                 properties:
-                  suggestion:
-                    id: int
+                  id:
+                    type: integer
+                  user_id:
+                    type: integer
+                  log_id:
+                    type: integer
+                  response:
+                    type: string
         '404':
           description: Log entry not found
         '400':
           description: Invalid user_id or log format
-  
+
+  /users/{user}/logs/{log}/suggestions/{suggestion}:
+    put:
+      summary: Update a suggestion for a specific log entry
+      operationId: updateUserLogTreatmentSuggestion
+      parameters:
+        - name: user
+          in: path
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+        - name: log
+          in: path
+          required: true
+          description: The log entry ID
+          schema:
+            type: integer
+        - name: suggestion
+          in: path
+          required: true
+          description: The suggestion ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                log_id:
+                  type: integer
+                suggestion_id:
+                  type: integer
+                response:
+                  type: string
+      responses:
+        '200':
+          description: Suggestion updated successfully
+        '404':
+          description: Log entry or suggestion not found
+        '400':
+          description: Invalid user_id, log, or suggestion format
+
