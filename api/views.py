@@ -9,8 +9,8 @@ from rest_framework import permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter, BlogEntry, BlogComment, BlogLike, EnumType, BaselineQuestion
-from .serializers import BlogEntrySerializer, BlogCommentSerializer, BlogLikeSerializer, UserSerializer,ParameterSerializer, ParameterSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer, EnumTypeSerializer, BaselineQuestionSerializer
+from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter, BlogEntry, BlogComment, BlogLike, EnumType
+from .serializers import BlogEntrySerializer, BlogCommentSerializer, BlogLikeSerializer, UserSerializer,ParameterSerializer, ParameterSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer, EnumTypeSerializer
 
 import random
 
@@ -57,8 +57,6 @@ class LogbookView(APIView):
 
     def get(self, request, user_id: int, format=None):
         logbooks = Logbook.objects.filter(user_id=user_id)
-        if logbooks is None or len(logbooks) == 0:
-            return Response("Not found", status.HTTP_404_NOT_FOUND)
         
         response = []
         for logbook in logbooks:
@@ -81,19 +79,6 @@ class LogbookView(APIView):
             ).save()
 
         return Response(status=status.HTTP_201_CREATED)
-
-class BaselineQuestionView(APIView):
-    authentication_classes = []
-    permission_classes = []
-
-    def get(self, request, format=None):
-        questions = BaselineQuestion.objects.all()
-        
-        response = []
-        for question in questions:
-            response.append(BaselineQuestionSerializer(question).data)
-
-        return Response(response, status.HTTP_200_OK)
 
 class BaselineView(APIView):
     authentication_classes = []
@@ -121,6 +106,19 @@ class BaselineView(APIView):
             ).save()
 
         return Response(status=status.HTTP_201_CREATED)
+    
+class BaselineQuestionView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format=None):
+        parameters = Parameter.objects.filter(baselineQuestion=True)
+        
+        response = []
+        for parameter in parameters:
+            response.append(ParameterSerializer(parameter).data)
+
+        return Response(response, status.HTTP_200_OK)
 
 class ParameterGeneralView(APIView):
     authentication_classes = []

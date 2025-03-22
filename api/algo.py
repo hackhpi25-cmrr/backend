@@ -136,7 +136,7 @@ def bestUserProfile(userProfiles, weights, now):
     sortedScore = sorted(score, key=lambda x: (x[1], x[0]))
     return sortedScore[0][0]
 
-from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter, BaselineQuestion
+from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter
 
 def rankFromDB(nowID):
 
@@ -195,7 +195,7 @@ def rankFromDB(nowID):
 def getBaseUserProfileFromDB(userID, userProfilesIDs):
     
     # Baselinefragen holen
-    baselineQuestions = BaselineQuestion.objects.all()
+    baselineQuestions = Parameter.objects.filter(baselineQuestion=True)
     
     # Weights und IDs holen
     baselineIDs = []

@@ -7,7 +7,6 @@ from .models import (
     ParameterAnswer,
     Treatment,
     Suggestion,
-    BaselineQuestion,
     Baseline,
     BlogEntry,
     BlogComment,
@@ -35,7 +34,7 @@ class LogbookSerializer(serializers.ModelSerializer):
     entries = serializers.SerializerMethodField()
     class Meta:
         model = Logbook
-        fields = ['id', 'time', 'entries']
+        fields = ['id', 'time', 'entries', 'weight']
     def get_entries(self, obj):
         entries = ParameterAnswer.objects.filter(logbook_entry=obj)
         return ParameterAnswerSerializer(entries, many=True).data
@@ -74,12 +73,6 @@ class SuggestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Suggestion
         fields = ['id', 'logbook_entry', 'user', 'treatment', 'perceived_effectiveness', 'effectiveness']
-
-
-class BaselineQuestionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BaselineQuestion
-        fields = ['id', 'name']
 
 
 class BaselineSerializer(serializers.ModelSerializer):

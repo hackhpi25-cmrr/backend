@@ -16,6 +16,14 @@ class Parameter(models.Model):
 
     parameter_type = models.CharField(max_length=32, choices=Type.choices)
     passive = models.BooleanField(default=False)
+    baselineQuestion = models.BooleanField(default=False)
+    weight = models.FloatField(
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(1.0)
+        ], 
+        default=1
+    )
 
     def __str__(self):
         return self.name
@@ -23,7 +31,7 @@ class Parameter(models.Model):
 class EnumType(models.Model):
 
     parameter = models.ForeignKey(Parameter, on_delete=models.CASCADE, related_name="enumtypes")
-    display = models.CharField(max_length=128)
+    display = models.CharField(max_length=256)
     value = models.IntegerField()
 
     def __str__(self):
@@ -54,7 +62,7 @@ class ParameterAnswer(models.Model):
 
 class Treatment(models.Model):
     
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=256)
 
     def __str__(self):
         return self.name
@@ -84,17 +92,10 @@ class Suggestion(models.Model):
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}: {self.treatment.name}"
 
-class BaselineQuestion(models.Model):
-
-    name = models.CharField(max_length=128)
-
-    def __str__(self):
-        return self.name
-
 class Baseline(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="baselines")
-    question = models.ForeignKey(BaselineQuestion, on_delete=models.CASCADE)
+    question = models.ForeignKey(Parameter, on_delete=models.CASCADE)
     normalised_answer = models.FloatField(
         validators=[
             MinValueValidator(0.0),
@@ -108,7 +109,7 @@ class Baseline(models.Model):
 class BlogEntry(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blog_entries")
-    title = models.CharField(max_length=128)
+    title = models.CharField(max_length=256)
     content = models.CharField(max_length=1024)
 
     def __str__(self):
