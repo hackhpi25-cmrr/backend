@@ -554,3 +554,21 @@ paths:
         '400':
           description: Invalid user_id, log, or suggestion format
 
+  /basequestions:
+    get:
+      summary: Get all baseline questions
+      operationId: getBaseQuestions
+      responses:
+        '200':
+          description: A list of all baseline questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
