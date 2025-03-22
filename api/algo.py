@@ -274,7 +274,53 @@ def choose_element(liste1, liste2):
 def passiveTreatment(nowID):
     userID = Logbook.objects.get(id=nowID).user.id
     limit = 5
-    pain = anticipatePainlevel(nowID)
+    
+
+    parameters = Parameter.objects.all()
+    
+    # Gewichtungen und Sortierung filtern
+    parameterIDs = []
+    weights = []
+    for parameter in parameters:
+        weights.append(parameter.weight)
+        parameterIDs.append(parameter.id)
+    
+    # Logbucheintrag von now holen
+    nowlogbook = Logbook.objects.get(id=nowID)
+    userID = nowlogbook.user.id
+    now = []
+
+    # Parameterantworten von now holen
+    for parameterID in parameterIDs:
+        try:
+            answer = ParameterAnswer.objects.get(parameter_id=parameterID, logbook_entry_id=nowID)
+            now.append(answer.normalised_answer)
+        except ParameterAnswer.DoesNotExist:
+            now.append(None)
+
+    points = []
+    Logbooks = Logbook.objects.all()
+    suggestions = Suggestion.objects.all()
+    userID = userId
+    for logbook in Logbooks:
+        if logbook.id == nowID or logbook.user.id != userID:
+            continue
+        # Suggestions durchsuchen
+        tmp = []
+        for suggestion in suggestions:
+            if suggestion.logbook_entry.id == logbook.id:
+                tmp.append(suggestion.treatment.id)
+                tmp.append(suggestion.effectiveness)
+                for parameterID in parameterIDs:
+                    try:
+                        answer = ParameterAnswer.objects.get(parameter_id=parameterID, logbook_entry_id=logbook.id)
+                        tmp.append(answer.normalised_answer)
+                    except ParameterAnswer.DoesNotExist:
+                        tmp.append(None)
+    points.append(tmp)
+
+    pain = anticipatePainlevel(points, weights, now)
+
 
     if (pain < limit):
         return None
