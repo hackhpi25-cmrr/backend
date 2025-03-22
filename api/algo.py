@@ -301,7 +301,7 @@ def passiveTreatment(nowID):
     points = []
     Logbooks = Logbook.objects.all()
     suggestions = Suggestion.objects.all()
-    userID = userId
+    
     for logbook in Logbooks:
         if logbook.id == nowID or logbook.user.id != userID:
             continue
