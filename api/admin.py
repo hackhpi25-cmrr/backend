@@ -10,4 +10,3 @@ admin.site.register(Suggestion)
 admin.site.register(Treatment)
 admin.site.register(BaselineQuestion)
 admin.site.register(Baseline)
-
