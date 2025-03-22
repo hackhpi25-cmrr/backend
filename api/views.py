@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter, BlogEntry, BlogComment, BlogLike
-from .serializers import BlogEntrySerializer, BlogCommentSerializer, BlogLikeSerializer, UserSerializer, ParameterAnswerSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer
+from .serializers import BlogEntrySerializer, BlogCommentSerializer, BlogLikeSerializer, UserSerializer,ParameterSerializer, ParameterAnswerSerializer, LogbookSerializer, RegisterSerializer, BaselineSerializer, SuggestionSerializer
 
 import random
 
