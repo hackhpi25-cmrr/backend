@@ -82,7 +82,7 @@ def rankTreatmentByDist(score):
 
 
 
-def anticipatePainlevel(points, weights, now, skipped):
+def anticipatePainlevel(points, weights, now):
     """
     array of array of floats/ints
 
@@ -139,6 +139,10 @@ def bestUserProfile(userProfiles, weights, now):
 from .models import Logbook, ParameterAnswer, Baseline, Suggestion, Treatment, Parameter, BaselineQuestion
 
 def rankFromDB(nowID):
+    nowlogbook = Logbook.objects.get(id=nowID)
+    return rankFromDBusr(nowID, nowlogbook.user.id)
+
+def rankFromDBusr(nowID,userId):
 
     parameters = Parameter.objects.all()
     
@@ -165,6 +169,7 @@ def rankFromDB(nowID):
     points = []
     Logbooks = Logbook.objects.all()
     suggestions = Suggestion.objects.all()
+    userID = userId
     for logbook in Logbooks:
         if logbook.id == nowID or logbook.user.id != userID:
             continue
@@ -230,6 +235,16 @@ def getBaseUserProfileFromDB(userID, userProfilesIDs):
 
     return bestProfile
 
+ 
+def rankFromDBwithRef(nowID, userProfilesIDs, limit):
+    userID = Logbook.objects.get(id=nowID).user.id
 
+    ranked = rankFromDB(nowID)
+    if ranked[0][1] <= limit:
+        return ranked
     
+    bestProfile = getBaseUserProfileFromDB(userID, userProfilesIDs)
+    return rankFromDBusr(nowID, bestProfile)
+
+
 
