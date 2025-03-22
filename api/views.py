@@ -520,6 +520,17 @@ class MetricParameterView(APIView):
             return Response(bestTreatments, status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_201_CREATED)
+        
+class TreatmentView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, treatment_id: int, format=None):
+        try:
+            treatment = Treatment.objects.get(id=treatment_id)
+            return Response(treatment.name, status.HTTP_200_OK)
+        except Treatment.DoesNotExist:
+            return Response({"error": "Treatment not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class AuthTestView(APIView):
     authentication_classes = [JWTAuthentication]

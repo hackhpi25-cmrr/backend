@@ -60,6 +60,8 @@ urlpatterns = [
     path('users/<int:user_id>/metric/passive/all', apiViews.MetricPassiveView.as_view()),
     path('users/<int:user_id>/metric/parameter/<int:parameter_id>/norm/<int:norm>', apiViews.MetricParameterView.as_view()),
 
+    path('treatment/<int:treatment_id>', apiViews.TreatmentView.as_view()),
+
     path('register', apiViews.RegisterView.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
