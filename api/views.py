@@ -493,12 +493,9 @@ class MetricActiveView(APIView):
     permission_classes = []
 
     def get(self, request, user_id: int, format=None):
-
         bestTreatments = algo.statisticsOverall(user_id)
-
         if len(bestTreatments) > 0:
-            response = json.dumps(bestTreatments)
-            return Response(response, status.HTTP_200_OK)
+            return Response(bestTreatments, status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_201_CREATED)
         
@@ -507,12 +504,9 @@ class MetricPassiveView(APIView):
     permission_classes = []
 
     def get(self, request, user_id: int, format=None):
-
         bestTreatments = algo.statisticsPassive(user_id)
-
         if len(bestTreatments) > 0:
-            response = json.dumps(bestTreatments)
-            return Response(response, status.HTTP_200_OK)
+            return Response(bestTreatments, status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_201_CREATED)
         
@@ -521,11 +515,9 @@ class MetricParameterView(APIView):
     permission_classes = []
 
     def get(self, request, user_id: int, parameter_id: int, norm: int, format=None):
-
         bestTreatments = algo.statisticsCustom(user_id, parameter_id, norm)
         if len(bestTreatments) > 0:
-            response = json.dumps(bestTreatments)
-            return Response(response, status.HTTP_200_OK)
+            return Response(bestTreatments, status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_201_CREATED)
 

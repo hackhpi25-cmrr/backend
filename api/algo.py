@@ -424,7 +424,9 @@ def statisticsOverall(userID):
 
     ranking = []
     for suggestion in suggestions:
-        ranking.append([suggestion.treatment.id, suggestion.effectiveness])
+        # Use 0.5 as default effectiveness if None
+        effectiveness = suggestion.effectiveness if suggestion.effectiveness is not None else 0.5
+        ranking.append([suggestion.treatment.id, effectiveness])
 
     # Treatments sortieren
     ranking = sorted(ranking, key=lambda x: x[1])
@@ -450,7 +452,9 @@ def statisticsPassive(userID):
 
     ranking = []
     for suggestion in suggestions:
-        ranking.append([suggestion.treatment.id, suggestion.effectiveness])
+        # Use 0.5 as default effectiveness if None
+        effectiveness = suggestion.effectiveness if suggestion.effectiveness is not None else 0.5
+        ranking.append([suggestion.treatment.id, effectiveness])
 
     # Treatments sortieren
     ranking = sorted(ranking, key=lambda x: x[1])
@@ -478,10 +482,12 @@ def statisticsCustom (userID, parameterID, norm):
     for suggestion in suggestions:
         try:
             paraAns = ParameterAnswer.objects.get(logbook_entry_id=suggestion.logbook_entry.id, parameter_id=parameterID)
+            # Use 0.5 as default effectiveness if None
+            effectiveness = suggestion.effectiveness if suggestion.effectiveness is not None else 0.5
             if (norm == 1):
-                ranking.append([suggestion.treatment.id, suggestion.effectiveness*paraAns.normalised_answer])
+                ranking.append([suggestion.treatment.id, effectiveness*paraAns.normalised_answer])
             else:
-                ranking.append([suggestion.treatment.id, suggestion.effectiveness*(1-paraAns.normalised_answer)])
+                ranking.append([suggestion.treatment.id, effectiveness*(1-paraAns.normalised_answer)])
         except:
             continue
 
