@@ -151,8 +151,83 @@ def rankFromDB(nowID):
     
     # Logbucheintrag von now holen
     nowlogbook = Logbook.objects.get(id=nowID)
-    userID
+    userID = nowlogbook.user.id
+    now = []
 
+    # Parameterantworten von now holen
+    for parameterID in parameterIDs:
+        try:
+            answer = ParameterAnswer.objects.get(parameter_id=parameterID, logbook_entry_id=nowID)
+            now.append(answer.normalised_answer)
+        except ParameterAnswer.DoesNotExist:
+            now.append(None)
+
+    points = []
+    Logbooks = Logbook.objects.all()
+    suggestions = Suggestion.objects.all()
+    for logbook in Logbooks:
+        if logbook.id == nowID or logbook.user.id != userID:
+            continue
+        # Suggestions durchsuchen
+        tmp = []
+        for suggestion in suggestions:
+            if suggestion.logbook_entry.id == logbook.id:
+                tmp.append(suggestion.treatment.id)
+                tmp.append(suggestion.effectiveness)
+                for parameterID in parameterIDs:
+                    try:
+                        answer = ParameterAnswer.objects.get(parameter_id=parameterID, logbook_entry_id=logbook.id)
+                        tmp.append(answer.normalised_answer)
+                    except ParameterAnswer.DoesNotExist:
+                        tmp.append(None)
+    points.append(tmp)
+
+    # Scores berechnen
+    score = treatmentoptions(points, weights, now)
+
+    # Ranking
+    ranked = rankTreatmentByUse(score)
+
+    return ranked
+
+
+
+def getBaseUserProfileFromDB(userID, userProfilesIDs):
+    
+    # Baselinefragen holen
+    baselineQuestions = BaselineQuestion.objects.all()
+    
+    # Weights und IDs holen
+    baselineIDs = []
+    weights = []
+    for baselineQuestion in baselineQuestions:
+        weights.append(baselineQuestion.weight)
+        baselineIDs.append(baselineQuestion.id)
+
+    # Baseline von User holen
+    now = []
+    for baselineID in baselineIDs:
+        try:
+            baseline = Baseline.objects.get(user_id=userID, baseline_question_id=baselineID)
+            now.append(baseline.normalised_answer)
+        except Baseline.DoesNotExist:
+            now.append(None)
+
+    userProfiles = []
+    for userProfilesID in userProfilesIDs:
+        user = []
+        for baselineID in baselineIDs:
+            try:
+                baseline = Baseline.objects.get(user_id=userProfilesID, baseline_question_id=baselineID)
+                user.append(baseline.normalised_answer)
+            except Baseline.DoesNotExist:
+                user.append(None)
+        userProfiles.append(user)
+
+    # Bestes Profil finden
+    bestProfile = bestUserProfile(userProfiles, weights, now)
+
+    return bestProfile
 
 
     
