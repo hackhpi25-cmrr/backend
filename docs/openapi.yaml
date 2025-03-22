@@ -528,14 +528,10 @@ paths:
             schema:
               type: object
               properties:
-                user_id:
-                  type: integer
-                log_id:
-                  type: integer
-                suggestion_id:
-                  type: integer
-                response:
-                  type: string
+                perceived_effectiveness:
+                  type: float
+                effectiveness:
+                  type: float
       responses:
         '200':
           description: Suggestion updated successfully
